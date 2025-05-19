@@ -1,0 +1,7 @@
+django
+psycopg2-binary
+python-dotenv
+gunicorn
+djangorestframework
+django-filter
+requests

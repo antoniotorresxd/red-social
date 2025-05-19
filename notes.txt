@@ -1,0 +1,18 @@
+User:
+
+    - SRS:
+        Especificar lo del token 
+         - agregar lo del refresh 
+
+Community:
+
+    - Arquitectura: 
+        add methods:
+            - listar los foros/grupos
+
+    - Especificar notrificaciones - cambiar en arquitectura
+
+
+- especificar que todas las rutas deben estar protegidas, sin token no puedes entrar 
+
+- agregar botones para regresar

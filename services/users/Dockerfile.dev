@@ -1,0 +1,31 @@
+# services/users/Dockerfile.dev
+
+# 1) Imagen base
+FROM python:3.10-slim
+
+# 2) Variables de entorno para evitar pyc y buffering
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# 3) Directorio de trabajo
+WORKDIR /app
+
+# 4) Instalar dependencias de SO (ajusta según necesites)
+RUN apt-get update \
+ && apt-get install -y gcc libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# 5) Copiar solo requirements y pip install
+COPY src/requirements.txt .
+RUN pip install --upgrade pip \
+ && pip install -r requirements.txt
+
+# 6) Copiar el entrypoint (el resto del código lo montas en dev con volumes)
+COPY src/entrypoint.dev.sh .
+RUN chmod +x entrypoint.dev.sh
+
+# 7) Exponer el puerto de desarrollo
+EXPOSE 8001
+
+# 8) Arranque con tu script de dev
+ENTRYPOINT ["./entrypoint.dev.sh"]

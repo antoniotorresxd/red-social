@@ -1,0 +1,129 @@
+<template>
+  <div class="auth-page-wrapper pt-5">
+    <div class="auth-one-bg" id="auth-particles">
+      <div class="bg-overlay"></div>
+      <div class="shape">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+          <path d="M 0,36 C 144,53.6 432,123.2 720,124 C 1008,124.8 1296,56.8 1440,40L1440 140L0 140z" />
+        </svg>
+      </div>
+    </div>
+
+    <BContainer>
+      <BRow class="justify-content-center">
+        <BCol md="8" lg="6" xl="5">
+          <BCard no-body class="mt-4">
+            <BCardBody class="p-4">
+              <div class="text-center mt-2">
+                <h5 class="text-primary">Bienvenido !</h5>
+                <p class="text-muted">Inicia sesión para continuar.</p>
+              </div>
+
+              <div class="p-2 mt-4">
+                <b-alert v-model="showError" variant="danger" class="mt-3" dismissible>
+                  {{ authError }}
+                </b-alert>
+
+                <form>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <input v-model="email" required type="email" class="form-control" id="email"
+                      placeholder="Dirección de correo electrónico" />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="password-input" class="form-label">Contraseña</label>
+                    <div class="position-relative auth-pass-inputgroup mb-1">
+                      <input v-model="password" required type="password" class="form-control pe-5" id="password-input"
+                        placeholder="Contraseña" />
+                    </div>
+                    <div class="float-end">
+                      <router-link to="/reset-password" class="text-muted">
+                        Olvidé mi contraseña
+                      </router-link>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="row pt-4 mt-4">
+                <div class="col-6">
+                  <BButton variant="success" class="w-100" type="button" @click="signinapi" :disabled="processing">
+                    {{ processing ? "Cargando..." : "Iniciar sesión" }}
+                  </BButton>
+                </div>
+                <div class="col-6">
+                  <BButton variant="info" class="w-100" type="button" @click="register" :disabled="processing">
+                    {{ processing ? "Cargando..." : "Registrarse" }}
+                  </BButton>
+                </div>
+              </div>
+
+            </BCardBody>
+          </BCard>
+        </BCol>
+      </BRow>
+    </BContainer>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import api from "@/router/api";
+
+export default {
+  data: () => ({
+    email: "",
+    password: "",
+    authError: "",
+    showError: false,
+    processing: false,
+  }),
+  methods: {
+    async signinapi() {
+      if (!this.email) {
+        this.authError = "El correo electrónico es requerido";
+        this.showError = true;
+        return;
+      }
+      if (!this.password) {
+        this.authError = "La contraseña es requerida";
+        this.showError = true;
+        return;
+      }
+
+      this.processing = true;
+      try {
+        const { data } = await axios.post(
+          api.users.login,
+          { email: this.email, password: this.password },
+        );
+
+        if (data.status_code === 200) {
+          const { access, refresh, user_name, user_id } = data.data;
+          localStorage.setItem("access", access);
+          localStorage.setItem("refresh", refresh);
+          localStorage.setItem("user_name", user_name);
+          localStorage.setItem("user_id", user_id);
+          this.$router.push({ name: "default" });
+        } else {
+          this.authError =
+            data.non_field_errors || data.message || "Credenciales inválidas";
+          this.showError = true;
+        }
+      } catch (err) {
+        this.authError =
+          err.response?.data?.non_field_errors ||
+          err.response?.data?.message ||
+          "Error de conexión";
+        this.showError = true;
+      } finally {
+        this.processing = false;
+      }
+    },
+    register(){
+      this.$router.push({ name: "register" });
+    }
+  },
+};
+</script>
