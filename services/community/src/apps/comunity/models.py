@@ -35,7 +35,3 @@ class Community(models.Model):
             self.list_users.remove(user_id)
             self.save(update_fields=['list_users'])
         return self
-
-    def get_participants(self):
-        return self.list_users
-    

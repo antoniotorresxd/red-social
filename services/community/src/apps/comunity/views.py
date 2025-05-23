@@ -62,8 +62,6 @@ class CommunityViewSet(viewsets.GenericViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST
             )
 
-
-
     def retrieve(self, request, pk=None):
         try:
             instance = get_object_or_404(Communitymodel, id=pk)
@@ -115,28 +113,6 @@ class CommunityViewSet(viewsets.GenericViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 data=[]
             )
-
-    # def update(self, request, pk=None):
-    #     try:
-    #         instance = get_object_or_404(self.get_queryset(), pk=pk)
-    #         serializer = self.serializer_class(
-    #             instance, data=request.data, partial=False
-    #         )
-
-    #         serializer.is_valid(raise_exception=True)
-    #         updated_instance = serializer.save()
-
-    #         return self.handle_message_response(
-    #             updated_instance,
-    #             f"{updated_instance} Actualizado satisfactoriamente",
-    #             status.HTTP_200_OK
-    #         )
-
-    #     except Exception as e:
-    #         return self.handle_error_response(
-    #             str(e), status.HTTP_400_BAD_REQUEST
-    #         )
-    
 
     @action(detail=False, methods=['post'], url_path='join')
     def join(self, request):
@@ -206,3 +182,92 @@ class CommunityViewSet(viewsets.GenericViewSet):
             status_code=status.HTTP_200_OK,
             data=data
         )
+
+    def destroy(self, request, pk=None):
+        """
+        Elimina una comunidad solo si el usuario autenticado es el admin de la comunidad.
+        """
+        try:
+            community = get_object_or_404(Communitymodel, id=pk)
+            raw_user = request.headers.get('X-User-Id')
+            if not raw_user:
+                return self.handle_message_response(
+                    message="X-User-Id header missing",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    data=[]
+                )
+            try:
+                user_id = int(raw_user)
+            except ValueError:
+                return self.handle_message_response(
+                    message="X-User-Id must be an integer",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    data=[]
+                )
+
+            if community.admin_id != user_id:
+                return self.handle_message_response(
+                    message="Solo el administrador puede eliminar la comunidad.",
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    data=[]
+                )
+
+            community.delete()
+
+            return self.handle_message_response(
+                message="Comunidad eliminada correctamente.",
+                status_code=status.HTTP_200_OK,
+                data=[]
+            )
+
+        except Exception as e:
+            return self.handle_message_response(
+                message=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data=[]
+            )
+        
+    @action(detail=True, methods=['post'], url_path='exit')
+    def exit_community(self, request, pk=None):
+        """
+        Permite que un usuario (no admin) salga de la comunidad.
+        El admin NO puede salirse si es el único admin.
+        """
+        try:
+            community = get_object_or_404(Communitymodel, id=pk)
+            raw_user = request.headers.get('X-User-Id')
+            if not raw_user:
+                return self.handle_message_response(
+                    message="X-User-Id header missing",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    data=[]
+                )
+            try:
+                user_id = int(raw_user)
+            except ValueError:
+                return self.handle_message_response(
+                    message="X-User-Id must be an integer",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    data=[]
+                )
+
+            if user_id == community.admin_id:
+                return self.handle_message_response(
+                    message="El administrador no puede salir. Solo puede eliminar la comunidad.",
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    data=[]
+                )
+
+            community.exit_community(user_id)
+
+            return self.handle_message_response(
+                message="Has salido de la comunidad.",
+                status_code=status.HTTP_200_OK,
+                data=[]
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data=[]
+            )

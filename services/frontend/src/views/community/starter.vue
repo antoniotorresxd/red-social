@@ -13,17 +13,10 @@
               <BButton variant="soft-primary" size="sm" @click="toggleMenu">
                 <i class="ri-add-line align-bottom" />
               </BButton>
-              <ul
-                v-if="showMenu"
-                class="dropdown-menu show position-absolute end-0 mt-2"
-                style="min-width: 8rem; z-index:1000"
-              >
+              <ul v-if="showMenu" class="dropdown-menu show position-absolute end-0 mt-2"
+                style="min-width: 8rem; z-index:1000">
                 <li v-for="item in menuItems" :key="item.action">
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    @click.prevent="doMenuAction(item.action)"
-                  >
+                  <a href="#" class="dropdown-item" @click.prevent="doMenuAction(item.action)">
                     {{ item.label }}
                   </a>
                 </li>
@@ -32,12 +25,8 @@
           </div>
           <!-- Buscador -->
           <div class="search-box mt-2">
-            <input
-              v-model="searchQuery"
-              type="text"
-              class="form-control bg-light border-light"
-              placeholder="Search here..."
-            />
+            <input v-model="searchQuery" type="text" class="form-control bg-light border-light"
+              placeholder="Search here..." />
             <i class="ri-search-2-line search-icon"></i>
           </div>
         </div>
@@ -47,12 +36,8 @@
           <div v-if="isLoading" class="text-center my-3">Cargando…</div>
           <div v-else-if="error" class="text-danger px-4">{{ error }}</div>
           <ul v-else class="list-unstyled chat-list chat-user-list">
-            <li
-              v-for="f in filteredForums"
-              :key="f.id"
-              @click="selectForum(f)"
-              :class="{ active: selectedForum && selectedForum.id === f.id }"
-            >
+            <li v-for="f in filteredForums" :key="f.id" @click="selectForum(f)"
+              :class="{ active: selectedForum && selectedForum.id === f.id }">
               <BLink href="javascript:void(0);">
                 <div class="d-flex align-items-center">
                   <div class="flex-shrink-0 chat-user-img online align-self-center me-2">
@@ -91,24 +76,16 @@
         </div>
 
         <!-- Formularios de create/join -->
-        <component
-          v-if="currentActionComponent"
-          :is="currentActionComponent"
-          @done="handleDone"
-          :key="currentActionComponent"
-        />
+        <component v-if="currentActionComponent" :is="currentActionComponent" @done="handleDone"
+          :key="currentActionComponent" />
 
         <!-- PublicationsArea cuando hay un foro/grupo seleccionado -->
-        <PublicationsArea
-          v-else-if="selectedForum"
-          :selected="selectedForum"
-          @action="onPubAction"
-          @filter="onFilter"
-        />
+        <PublicationsArea v-else-if="selectedForum" :selected="selectedForum" @action="onPubAction" @filter="onFilter"
+          @done="onCommunityChange" />
 
         <!-- Placeholder si no hay nada -->
         <div v-else class="text-center text-muted">
-          
+
         </div>
       </div>
     </div>
@@ -116,17 +93,17 @@
 </template>
 
 <script>
-import simplebar            from 'simplebar-vue'
-import Layout               from '@/layouts/main.vue'
-import axios                from 'axios'
-import api                  from '@/router/api'
+import simplebar from 'simplebar-vue'
+import Layout from '@/layouts/main.vue'
+import axios from 'axios'
+import api from '@/router/api'
 
-import CreateCommunityForm  from './forum/create.vue'
-import JoinCommunityForm    from './forum/join.vue'
+import CreateCommunityForm from './forum/create.vue'
+import JoinCommunityForm from './forum/join.vue'
 import CreateCommunityGroup from './group/create.vue'
-import JoinCommunityGroup   from './group/join.vue'
+import JoinCommunityGroup from './group/join.vue'
 
-import PublicationsArea     from './publications/starter.vue'
+import PublicationsArea from './publications/starter.vue'
 
 export default {
   name: 'ForumMenuOnly',
@@ -142,13 +119,13 @@ export default {
 
   data() {
     return {
-      showMenu:      false,
+      showMenu: false,
       currentAction: null,
-      searchQuery:   '',
-      forums:        [],
+      searchQuery: '',
+      forums: [],
       selectedForum: null,
-      isLoading:     false,
-      error:         null
+      isLoading: false,
+      error: null
     }
   },
 
@@ -162,16 +139,16 @@ export default {
       const label = t === 'group' ? 'grupo' : 'foro'
       return [
         { action: `create-${t}`, label: `Crear ${label}` },
-        { action: `join-${t}`,   label: `Unirse a ${label}` }
+        { action: `join-${t}`, label: `Unirse a ${label}` }
       ]
     },
     currentActionComponent() {
       switch (this.currentAction) {
         case 'create-forum': return CreateCommunityForm
-        case 'join-forum':   return JoinCommunityForm
+        case 'join-forum': return JoinCommunityForm
         case 'create-group': return CreateCommunityGroup
-        case 'join-group':   return JoinCommunityGroup
-        default:             return null
+        case 'join-group': return JoinCommunityGroup
+        default: return null
       }
     },
     filteredForums() {
@@ -188,18 +165,23 @@ export default {
     },
 
     doMenuAction(action) {
-        this.showMenu      = false
-        this.currentAction = action
-        this.selectedForum = null
+      this.showMenu = false
+      this.currentAction = action
+      this.selectedForum = null
 
-        // en móvil, abre el panel de detalle (create/join)
-        if (window.innerWidth < 992) {
-          document
-            .querySelector('.user-chat')
-            .classList
-            .add('user-chat-show')
-        }
-      },
+      // en móvil, abre el panel de detalle (create/join)
+      if (window.innerWidth < 992) {
+        document
+          .querySelector('.user-chat')
+          .classList
+          .add('user-chat-show')
+      }
+    },
+
+    async onCommunityChange() {
+      await this.fetchForums()
+      this.selectedForum = null
+    },
 
     selectForum(item) {
       this.selectedForum = item
@@ -215,9 +197,9 @@ export default {
     },
 
     resetAll() {
-      this.showMenu      = false
+      this.showMenu = false
       this.currentAction = null
-      this.searchQuery   = ''
+      this.searchQuery = ''
       this.selectedForum = null
 
       const panel = document.querySelector('.user-chat')
@@ -231,7 +213,7 @@ export default {
 
     async fetchForums() {
       this.isLoading = true
-      this.error     = null
+      this.error = null
       try {
         const { data } = await axios.get(api.community.list, {
           params: { type: this.$route.query.type || '' }
@@ -244,12 +226,12 @@ export default {
       }
     },
 
-    onPubAction(action) {
-      console.log('Kebab action:', action)
+    onPubAction() {
+
     },
 
     onFilter() {
-      console.log('Filtro pulsado')
+
     },
 
     handleClickOutside(e) {
@@ -292,23 +274,30 @@ export default {
 
 <style scoped>
 .chat-leftsidebar .dropdown-menu {
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 /* anima el área de trabajo en móvil */
-.chat-wrapper { position: relative; }
+.chat-wrapper {
+  position: relative;
+}
+
 .user-chat {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: #fff;
   transform: translateX(100%);
   transition: transform .3s ease-in-out;
   z-index: 5;
 }
+
 .user-chat.user-chat-show {
   transform: translateX(0);
 }
+
 /* en desktop siempre visible y sin animación */
 @media(min-width: 992px) {
   .user-chat {

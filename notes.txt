@@ -16,3 +16,7 @@ Community:
 - especificar que todas las rutas deben estar protegidas, sin token no puedes entrar 
 
 - agregar botones para regresar
+
+
+
+- Hay que revisar si se une el chat con la lista de participnates 

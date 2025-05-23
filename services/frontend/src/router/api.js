@@ -12,13 +12,13 @@ const apiUrl = {
       "refresh"  : baseURL + "/microservice-users/token/refresh/",
       "user"     : baseURL + "/microservice-users/",
       "reset_password" : baseURL + "/microservice-users/reset-password/",
-
     },
     
     community: {
       "list"  : baseURL + "/microservice-community/",
       "create": baseURL + "/microservice-community/create/",
       "join"  : baseURL + "/microservice-community/join/",
+      "exit"  : baseURL + "/microservice-community/exit/",
     },
 
     publication: {
