@@ -15,8 +15,7 @@
           <BCard no-body class="mt-4">
             <BCardBody class="p-4">
               <div class="text-center mt-2">
-                <h5 class="text-primary">Bienvenido !</h5>
-                <p class="text-muted">Inicia sesión para continuar.</p>
+                 <h5 class="text-primary mb-4">Inicio de sesión</h5>
               </div>
 
               <div class="p-2 mt-4">
@@ -24,35 +23,64 @@
                   {{ authError }}
                 </b-alert>
 
-                <form>
-                  <div class="mb-3">
-                    <label for="email" class="form-label">Correo electrónico</label>
-                    <input v-model="email" required type="email" class="form-control" id="email"
-                      placeholder="Dirección de correo electrónico" />
+                <form @submit.prevent="signinapi">
+                  <!-- Correo institucional -->
+                  <div class="mb-3 position-relative">
+                    <label for="email" class="form-label">Correo institucional</label>
+                    <input
+                      v-model="email"
+                      required
+                      type="email"
+                      class="form-control pr-5"
+                      id="email"
+                      placeholder="Correo institucional"
+                      autocomplete="username"
+                    />
+                    <!-- Icono de sobre -->
+                    <font-awesome-icon
+                      :icon="['fas', 'envelope']"
+                      class="position-absolute"
+                      style="top: 38px; right: 16px; pointer-events: none; color: #aaa;"
+                    />
                   </div>
 
-                  <div class="mb-3">
+                  <!-- Contraseña -->
+                  <div class="mb-2 position-relative">
                     <label for="password-input" class="form-label">Contraseña</label>
-                    <div class="position-relative auth-pass-inputgroup mb-1">
-                      <input v-model="password" required type="password" class="form-control pe-5" id="password-input"
-                        placeholder="Contraseña" />
-                    </div>
-                    <div class="float-end">
-                      <router-link to="/reset-password" class="text-muted">
-                        Olvidé mi contraseña
-                      </router-link>
-                    </div>
+                    <input
+                      v-model="password"
+                      required
+                      type="password"
+                      class="form-control pr-5"
+                      id="password-input"
+                      placeholder="Contraseña"
+                      autocomplete="current-password"
+                    />
+                    <!-- Icono de candado -->
+                    <font-awesome-icon
+                      :icon="['fas', 'lock']"
+                      class="position-absolute"
+                      style="top: 38px; right: 16px; pointer-events: none; color: #aaa;"
+                    />
                   </div>
+
+                  <!-- Olvidé mi contraseña -->
+                  <div class="mb-3 text-end">
+                    <router-link to="/reset-password" class="text-muted small">
+                      Olvidé mi contraseña
+                    </router-link>
+                  </div>
+
                 </form>
               </div>
 
-              <div class="row pt-4 mt-4">
-                <div class="col-6">
+              <div class="row pt-2">
+                <div class="col-12">
                   <BButton variant="success" class="w-100" type="button" @click="signinapi" :disabled="processing">
                     {{ processing ? "Cargando..." : "Iniciar sesión" }}
                   </BButton>
                 </div>
-                <div class="col-6">
+                <div class="col-12 mt-2">
                   <BButton variant="info" class="w-100" type="button" @click="register" :disabled="processing">
                     {{ processing ? "Cargando..." : "Registrarse" }}
                   </BButton>

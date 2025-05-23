@@ -15,8 +15,7 @@
           <BCard no-body class="mt-4">
             <BCardBody class="p-4">
               <div class="text-center mt-2">
-                <h5 class="text-primary">Bienvenido !</h5>
-                <p class="text-muted">Registrate para continuar.</p>
+                <h5 class="text-primary">Registrarse</h5>
               </div>
 
               <div class="p-2 mt-4">
@@ -33,7 +32,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="email" class="form-label">Correo electrónico</label>
+                    <label for="email" class="form-label">Correo institucional</label>
                     <input v-model="email" required type="email" class="form-control" id="email"
                       placeholder="Dirección de correo electrónico" />
                   </div>
@@ -53,7 +52,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="password2" class="form-label">Confirmación de contraseña</label>
+                    <label for="password2" class="form-label">Validación de contraseña</label>
                     <div class="position-relative auth-pass-inputgroup mb-1">
                       <input v-model="password2" required type="password" class="form-control pe-5" id="password2"
                         placeholder="Confirmar contraseña" />

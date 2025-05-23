@@ -147,7 +147,7 @@ class UserViewSet(viewsets.GenericViewSet):
             user = UserModel.objects.get(email=email, birthdate=birthdate)
         except UserModel.DoesNotExist:
             return self.handle_message_response(
-                message="No se encontró un usuario con ese correo y fecha de nacimiento.",
+                message="Usuario no encontrado",
                 status_code=status.HTTP_404_NOT_FOUND,
                 data=[]
             )

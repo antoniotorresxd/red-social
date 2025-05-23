@@ -107,9 +107,9 @@
 
 <script>
 import simplebar from "simplebar-vue";
-import NotificationItem from "./notification-item.vue";
+import NotificationItem from "@/components/notification-item.vue"; // Ajusta si tu path es distinto
 import axios from 'axios'
-import api from '../router/api'
+import api from '@/router/api'
 
 export default {
   components: { simplebar, NotificationItem },
@@ -127,26 +127,80 @@ export default {
     userName() {
       return localStorage.getItem('user_name') || '';
     },
+    // SOLO suma las NO leídas
     totalNotis() {
       return Object.values(this.notifications)
         .reduce((sum, arr) => sum + arr.filter(n => !n.read).length, 0);
     }
   },
   methods: {
-    // Método para agregar una notificación al sistema
+    // Agrega una notificación por tipo
     handleNotification(notification) {
       const { type } = notification;
       if (this.notifications[type]) {
+        // Si no existe, inicializa el campo 'read' como false (por compatibilidad)
+        if (notification.read === undefined) notification.read = false;
         this.notifications[type].unshift(notification);
+
+        // Guarda el arreglo actualizado en localStorage
+        const key = `notis_${type}`;
+        localStorage.setItem(key, JSON.stringify(this.notifications[type]));
       }
     },
-    // Cargar notificaciones previas del localStorage (opcional)
+    // Marca como leída y actualiza en localStorage
+    markNotificationAsRead(type, id) {
+      const noti = this.notifications[type].find(n => n.id === id);
+      if (noti && !noti.read) {
+        noti.read = true;
+        // Persiste el cambio
+        const key = `notis_${type}`;
+        localStorage.setItem(key, JSON.stringify(this.notifications[type]));
+      }
+    },
+    // Carga las notificaciones guardadas en localStorage
     loadSavedNotifications() {
       const types = ["usuarios", "foros", "grupos", "chat"];
       types.forEach(type => {
         const stored = localStorage.getItem(`notis_${type}`);
         if (stored) this.notifications[type] = JSON.parse(stored);
       });
+    },
+    toggleHamburgerMenu() {
+      // Copia exactamente la lógica original de tu plantilla
+      const windowSize = document.documentElement.clientWidth;
+      const layoutType = document.documentElement.getAttribute("data-layout");
+      document.documentElement.setAttribute("data-sidebar-visibility", "show");
+      // Icono hamburguesa
+      if (windowSize > 767) {
+        document.querySelector(".hamburger-icon")?.classList.toggle("open");
+      }
+      // Menú horizontal
+      if (layoutType === "horizontal") {
+        document.body.classList.toggle("menu");
+      }
+      // Menú vertical
+      if (["vertical", "semibox"].includes(layoutType)) {
+        if (windowSize < 1025 && windowSize > 767) {
+          document.body.classList.remove("vertical-sidebar-enable");
+          document.documentElement.setAttribute(
+            "data-sidebar-size",
+            document.documentElement.getAttribute("data-sidebar-size") === "sm" ? "" : "sm"
+          );
+        } else if (windowSize > 1025) {
+          document.body.classList.remove("vertical-sidebar-enable");
+          document.documentElement.setAttribute(
+            "data-sidebar-size",
+            document.documentElement.getAttribute("data-sidebar-size") === "lg" ? "sm" : "lg"
+          );
+        } else if (windowSize <= 767) {
+          document.body.classList.add("vertical-sidebar-enable");
+          document.documentElement.setAttribute("data-sidebar-size", "lg");
+        }
+      }
+      // Menú dos columnas
+      if (layoutType === "twocolumn") {
+        document.body.classList.toggle("twocolumn-panel");
+      }
     },
     async logout() {
       try {
@@ -162,8 +216,10 @@ export default {
     }
   },
   mounted() {
+    // Carga notificaciones persistentes al iniciar
+    this.loadSavedNotifications();
 
-    // Escucha cambios en localStorage de otras pestañas/ventanas
+    // Escucha cambios en localStorage (otras pestañas)
     window.addEventListener("storage", (event) => {
       if (event.key === "new_notification") {
         const noti = JSON.parse(event.newValue);
@@ -172,12 +228,18 @@ export default {
       }
     });
 
-    // Escucha evento custom para la misma pestaña
+    // Escucha evento personalizado para la misma pestaña
     window.addEventListener("show-notification", (e) => {
       this.handleNotification(e.detail);
     });
 
-    // Mantén tu lógica de scroll y menú hamburguesa original
+    // Menú hamburguesa (listener SOLO UNA VEZ)
+    const hamb = document.getElementById("topnav-hamburger-icon");
+    if (hamb) {
+      hamb.addEventListener("click", this.toggleHamburgerMenu);
+    }
+
+    // Sombra de barra superior (de tu plantilla)
     document.addEventListener("scroll", function () {
       var pageTopbar = document.getElementById("page-topbar");
       if (pageTopbar) {
@@ -186,8 +248,7 @@ export default {
           : pageTopbar.classList.remove("topbar-shadow");
       }
     });
-
-    document.getElementById("topnav-hamburger-icon")?.addEventListener("click", this.toggleHamburgerMenu);
-  },
+  }
 };
 </script>
+

@@ -16,7 +16,6 @@
             <BCardBody class="p-4">
               <div class="text-center mt-2">
                 <h5 class="text-primary">Cambiar Contraseña</h5>
-                <p class="text-muted">Debe estar seguro de cambiar su contraseña</p>
               </div>
 
               <div class="p-2 mt-4">
@@ -41,6 +40,8 @@
                     <input v-model="new_password" type="password" required class="form-control"
                       id="new_password" placeholder="Nueva contraseña" />
                   </div>
+
+                  <p class="text-muted">Debe estar seguro de cambiar su contraseña</p>
 
                   <div class="d-grid mt-4">
                     <BButton variant="info" type="submit" :disabled="processing">

@@ -1,7 +1,7 @@
 <!-- src/views/user/UserProfile.vue -->
 <template>
   <div class="col-xl-5 col-12 mx-auto mt-4">
-    <h5 class="text-center mb-4">{{ showPasswordForm ? 'Cambiar Contraseña' : 'Actualizar Perfil' }}</h5>
+    <h5 class="text-center mb-4">{{ showPasswordForm ? 'Cambiar Contraseña' : 'Mi Perfil' }}</h5>
 
     <!-- FORMULARIO DE PERFIL -->
     <form v-if="!showPasswordForm" @submit.prevent="updateProfile">
@@ -23,10 +23,10 @@
       </div>
 
       <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-outline-secondary w-100" type="button" @click="showPasswordForm = true">Cambiar contraseña</button>
         <button v-if="editing" class="btn btn-outline-secondary w-100" type="button" @click="cancelEdit">Cancelar</button>
         <button v-if="editing" class="btn btn-primary w-100" type="submit">Guardar</button>
         <button v-else class="btn btn-outline-primary w-100" type="button" @click="editing = true">Modificar</button>
-        <button class="btn btn-outline-secondary w-100" type="button" @click="showPasswordForm = true">Cambiar contraseña</button>
       </div>
     </form>
 

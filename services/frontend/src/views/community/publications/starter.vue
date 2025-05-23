@@ -78,7 +78,7 @@
         @click.self="closeModal"
       >
         <div class="publish-card">
-          <h5 class="mb-3">Publicar</h5>
+          <h5 class="mb-3">Crear publicación</h5>
           <textarea
             v-model="newPost"
             class="form-control mb-3"

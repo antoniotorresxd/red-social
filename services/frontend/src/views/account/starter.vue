@@ -21,7 +21,7 @@
                     <div class="d-flex align-items-center gap-2 px-3 py-2" @click="showProfile"
                         style="cursor: pointer; max-width: 200px;">
                         <i class="ri-profile-line fs-5"></i>
-                        <span>Perfil</span>
+                        <span>Mi Perfil</span>
                     </div>
 
                 </simplebar>

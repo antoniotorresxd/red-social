@@ -51,11 +51,25 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        await axios.post(api.community.create, {
+        const group = await axios.post(api.community.create, {
           name: this.name.trim(),
           type: 'group',
           admin_id: localStorage.getItem("user_id")
         })
+        
+        const noti = {
+          id: Date.now(),
+          user_id: localStorage.getItem("user_id"), 
+          title: "Grupo creado",
+          message: `Se ha creado el grupo. Su código es: ${group.data.data.code}`,
+          type: "grupos",
+          created_at: new Date().toISOString(),
+          read: false 
+        };
+        localStorage.setItem("new_notification", JSON.stringify(noti));
+        window.dispatchEvent(new CustomEvent("show-notification", { detail: noti }));
+
+
         this.$emit('done')
       } catch (e) {
         this.error = e.response?.data?.message || 'Error al crear el grupo'
