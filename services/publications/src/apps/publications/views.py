@@ -31,6 +31,7 @@ class PublicationViewSet(viewsets.ModelViewSet):
         tipo = self.request.query_params.get('type')
         community_id = self.request.query_params.get('community_id')
         user_id = self.request.query_params.get('user_id')
+        ordering = self.request.query_params.get('ordering')
 
         if tipo:
             qs = qs.filter(type=tipo)
@@ -38,7 +39,10 @@ class PublicationViewSet(viewsets.ModelViewSet):
             qs = qs.filter(community_id=community_id)
         if user_id:
             qs = qs.filter(user_id=user_id)
-        return qs.order_by('-timestamp')
+        if ordering:
+            qs = qs.order_by(ordering)
+
+        return qs
 
     def list(self, request, *args, **kwargs):
         try:

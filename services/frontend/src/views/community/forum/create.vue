@@ -52,7 +52,7 @@ export default {
           id: Date.now(),
           user_id: localStorage.getItem("user_id"), 
           title: "Foro creado",
-          message: "El foro {} se ha creado correctamente.",
+          message: `El foro ${this.name.trim()} se ha creado correctamente.`,
           type: "foros",
           created_at: new Date().toISOString(),
           read: false 
