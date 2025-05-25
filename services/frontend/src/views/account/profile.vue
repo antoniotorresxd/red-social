@@ -23,7 +23,7 @@
       </div>
 
       <div class="d-flex gap-2 mt-4">
-        <button class="btn btn-outline-secondary w-100" type="button" @click="showPasswordForm = true">Cambiar contraseña</button>
+        <button hidden class="btn btn-outline-secondary w-100" type="button" @click="showPasswordForm = true">Cambiar contraseña</button>
         <button v-if="editing" class="btn btn-outline-secondary w-100" type="button" @click="cancelEdit">Cancelar</button>
         <button v-if="editing" class="btn btn-primary w-100" type="submit">Guardar</button>
         <button v-else class="btn btn-outline-primary w-100" type="button" @click="editing = true">Modificar</button>
