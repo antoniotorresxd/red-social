@@ -6,9 +6,9 @@
       <ul class="navbar-nav h-100 pt-5" id="navbar-nav">
 
         <li class="nav-item" v-for="(item, idx) in menuItems" :key="idx">
-          <router-link :to="item.to" class="nav-link menu-link" role="button" aria-expanded="false">
+          <router-link :to="item.to" class="nav-link" role="button" aria-expanded="false">
             <font-awesome-icon :icon="item.icon" style="width: 1.5rem; height: 2.5rem;" />
-            <span>{{ item.label }}</span>
+            <span class="d-inline d-lg-none">{{ item.label }}</span>
           </router-link>
         </li>
 
@@ -34,7 +34,7 @@ export default {
         { to: "/community?type=group", icon: ["fas", "graduation-cap"], label: "Grupos" },
         { to: "/chat",                 icon: ['fas', 'comments'], label: "Chat" },
       ],
-    }; 
+    };
   },
   computed: {
     ...layoutComputed,
@@ -152,6 +152,14 @@ export default {
   },
 
   methods: {
+
+    closeSidebarOnMobile() {
+      // si la pantalla es estrecha, quitamos la clase que abre el sidebar
+      if (document.documentElement.clientWidth < 767) {
+        document.body.classList.remove('vertical-sidebar-enable');
+      }
+    },
+
     onRoutechange(ele) {
       this.initActiveMenu(ele.path);
       if (document.getElementsByClassName("mm-active").length > 0) {
@@ -160,6 +168,7 @@ export default {
           if (this.$refs.isSimplebar)
             this.$refs.isSimplebar.value.getScrollElement().scrollTop = currentPosition + 300;
       }
+      this.closeSidebarOnMobile();
     },
 
     initActiveMenu() {
