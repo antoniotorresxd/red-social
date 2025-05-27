@@ -104,6 +104,39 @@ services:
     networks:
       - backend
 
+  #  CHAT SERVICE
+  chat_service:
+    build:
+      context: ./services/chat
+      dockerfile: Dockerfile.dev
+    command: air        
+    image: chat-dev
+    volumes:
+      - ./services/chat:/app 
+    working_dir: /app
+    expose:
+      - "8004"
+    networks:
+      - backend
+    depends_on:
+      - users_service
+      - mongo_chat
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=chatdb
+
+  mongo_chat:
+    image: mongo:5.0
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend
+
+  # FRONTEND
   frontend:
     build:
       context: ./services/frontend
@@ -116,10 +149,26 @@ services:
     networks:
       - backend
 
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: antoniotorres841@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db_postgres_users
+      - db_postgres_community
+      - db_postgres_publications
+    networks:
+      - backend
+
 volumes:
   pgdata_users:
   pgdata_community:
   pgdata_publications:
+  mongo_data:
+  pgadmin:
 
 networks:
   backend:

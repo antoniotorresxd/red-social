@@ -22,7 +22,8 @@ const apiUrl = {
     },
 
     publication: {
-      "publish": baseURL + "/microservice-publication/",
+      "publish"    : baseURL + "/microservice-publication/",
+      "submit_task": baseURL + "/microservice-publication/submit-task/",
     },
 
 }

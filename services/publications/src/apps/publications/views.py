@@ -1,20 +1,23 @@
 # publications/views.py
-
 import requests
+from datetime import datetime
+from django.utils import timezone
+
 from django.conf import settings
 from django.core.cache import cache
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import action
 
-from .models import Publication
-from .serializers import PublicationSerializer
+from .models import Publication, Submission
+from .serializers import PublicationSerializer, SubmissionSerializer
+
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class PublicationViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para Publications con integración batch de usuarios
-    y cacheo de resultados de usuario para reducir latencia.
-    """
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = PublicationSerializer
     queryset = Publication.objects.all().order_by('-timestamp')
 
@@ -125,5 +128,49 @@ class PublicationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return self.handle_message_response(
                 message=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+
+    @action(detail=False, methods=['post'], url_path='submit-task')
+    def submit_task(self, request):
+        try:
+            user_id = request.headers.get('X-User-Id')
+            task_id = request.data.get('task')
+
+            if not task_id:
+                return self.handle_message_response(
+                    message="El campo 'task' es obligatorio.",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            task = Publication.objects.filter(id=task_id, type='task').first()
+            if not task:
+                return self.handle_message_response(
+                    message="No se encontró la tarea o no es válida.",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+
+            now = timezone.now()
+            is_late = task.due_date and now > task.due_date
+
+            submission = Submission.objects.create(
+                task=task,
+                user_id=user_id,
+                file=request.FILES['file'],
+                submitted_at=now,
+                is_late=is_late,
+                reviewed=False
+            )
+
+            serializer = SubmissionSerializer(submission)
+            return self.handle_message_response(
+                message="Tarea enviada correctamente",
+                status_code=status.HTTP_201_CREATED,
+                data=serializer.data
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al enviar la tarea: {str(e)}",
                 status_code=status.HTTP_400_BAD_REQUEST
             )

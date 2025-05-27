@@ -107,15 +107,14 @@ export default {
       this.error = ''
       try {
         const formData = new FormData()
-        formData.append('task_id', this.task.id)
+        formData.append('task', this.task.id)
         formData.append('user_id', localStorage.getItem('user_id'))
         formData.append('file', this.taskFile)
-        await axios.post(api.publication.submitTask, formData, {
+        await axios.post(api.publication.submit_task, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         this.close()
         this.$emit('uploaded')
-        alert('¡Tarea entregada correctamente!')
       } catch (e) {
         this.error = e.response?.data?.message || 'No se pudo subir la tarea.'
       } finally {

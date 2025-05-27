@@ -8,7 +8,7 @@
         <li class="nav-item" v-for="(item, idx) in menuItems" :key="idx">
           <router-link :to="item.to" class="nav-link" role="button" aria-expanded="false">
             <font-awesome-icon :icon="item.icon" style="width: 1.5rem; height: 2.5rem;" />
-            <span class="d-inline d-lg-none">{{ item.label }}</span>
+            <span class="d-inline d-lg-none d-md-none">{{ item.label }}</span>
           </router-link>
         </li>
 

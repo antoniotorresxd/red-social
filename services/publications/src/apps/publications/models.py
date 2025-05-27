@@ -19,7 +19,7 @@ class Publication(models.Model):
 class Submission(models.Model):
     task = models.ForeignKey(Publication, on_delete=models.CASCADE, limit_choices_to={'type': 'task'})
     user_id = models.IntegerField()
-    file = models.FileField()
+    file = models.FileField(upload_to="/media")
     submitted_at = models.DateTimeField()
     is_late = models.BooleanField()
     reviewed = models.BooleanField()
