@@ -11,8 +11,8 @@
 
     <BContainer>
       <BRow class="justify-content-center">
-        <BCol md="8" lg="6" xl="5">
-          <BCard no-body class="mt-4">
+        <BCol md="8" lg="6" xl="5" class="w-100" style="max-width: 400px;">
+          <BCard no-body class="mt-4 scrollable-card">
             <BCardBody class="p-4">
               <div class="text-center mt-2">
                 <h5 class="text-primary">Registrarse</h5>
@@ -67,6 +67,11 @@
                     {{ processing ? "Cargando..." : "Registrarse" }}
                   </BButton>
                 </div>
+                <div class="col-12 pt-2">
+                  <BButton variant="success" class="w-100" type="button" @click="redirectLogin" :disabled="processing">
+                    {{ processing ? "Cargando..." : "Iniciar Sesion" }}
+                  </BButton>
+                </div>
               </div>
 
             </BCardBody>
@@ -93,6 +98,9 @@ export default {
     processing: false,
   }),
   methods: {
+    redirectLogin(){
+      this.$router.push({ name: "login" });
+    },
     async registerapi() {
       if (!this.email) {
         this.authError = "El correo electrónico es requerido";
@@ -118,7 +126,7 @@ export default {
         );
 
         if (data.status_code === 201) {
-          this.$router.push({ name: "login" });
+          this.redirectLogin()
         } else {
           this.authError =
             data.non_field_errors || data.message || "Credenciales inválidas";
@@ -137,3 +145,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+.scrollable-card {
+  max-height: 80vh; /* Altura máxima relativa a la pantalla */
+  overflow-y: auto;
+}
+
+</style>

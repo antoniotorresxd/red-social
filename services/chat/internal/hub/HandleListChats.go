@@ -40,7 +40,7 @@ func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
 			rooms = append(rooms, r)
 		}
 	}
-	// Opcional: limitar a 10, ordenar por updated_at
+
 	if len(rooms) > 10 {
 		rooms = rooms[len(rooms)-10:]
 	}

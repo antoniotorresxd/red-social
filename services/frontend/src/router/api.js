@@ -26,6 +26,10 @@ const apiUrl = {
       "submit_task": baseURL + "/microservice-publication/submit-task/",
     },
 
+    chat: {
+      "ws_chat": "ws://192.168.100.17/ws/chat/"
+    }
+
 }
 
 

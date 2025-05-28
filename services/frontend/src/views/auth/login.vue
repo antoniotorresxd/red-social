@@ -11,8 +11,9 @@
 
     <BContainer>
       <BRow class="justify-content-center">
-        <BCol md="8" lg="6" xl="5">
-          <BCard no-body class="mt-4">
+        <BCol md="8" lg="6" xl="5" class="w-100" style="max-width: 400px;">
+          <BCard no-body class="mt-4 scrollable-card">
+
             <BCardBody class="p-4">
               <div class="text-center mt-2">
                  <h5 class="text-primary mb-4">Inicio de sesión</h5>
@@ -155,3 +156,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+.scrollable-card {
+  max-height: 80vh; /* Altura máxima relativa a la pantalla */
+  overflow-y: auto;
+}
+
+</style>
