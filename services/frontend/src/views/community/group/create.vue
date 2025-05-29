@@ -62,7 +62,7 @@ export default {
           user_id: localStorage.getItem("user_id"), 
           title: "Grupo creado",
           message: `Se ha creado el grupo. Su código es: ${group.data.data.code}`,
-          type: "grupos",
+          type: "all",
           created_at: new Date().toISOString(),
           read: false 
         };

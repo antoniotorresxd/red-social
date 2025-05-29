@@ -43,36 +43,11 @@
               </div>
             </div>
             <BTabs nav-class="dropdown-tabs nav-tab-custom bg-primary px-2 pt-2">
-              <BTab title="Usuarios">
+              <BTab title="ALL">
                 <simplebar data-simplebar style="max-height: 300px" class="pe-2">
-                  <template v-if="notifications.usuarios.length">
-                    <NotificationItem v-for="n in notifications.usuarios" :key="n.id" :notification="n"
-                      @read="markNotificationAsRead('usuarios', n.id)" />
-                  </template>
-                  <p v-else class="text-white text-center mt-2 mb-2">No tienes notificaciones</p>
-                </simplebar>
-              </BTab>
-              <BTab title="Foros">
-                <simplebar data-simplebar style="max-height: 300px" class="pe-2">
-                  <template v-if="notifications.foros.length">
-                    <NotificationItem v-for="n in notifications.foros" :key="n.id" :notification="n"
-                      @read="markNotificationAsRead('foros', n.id)" />
-                  </template>
-                  <p v-else class="text-white text-center mt-2 mb-2">No tienes notificaciones</p>
-                </simplebar>
-              </BTab>
-              <BTab title="Grupos">
-                <simplebar data-simplebar style="max-height: 300px" class="pe-2">
-                  <template v-if="notifications.grupos.length">
-                    <NotificationItem v-for="n in notifications.grupos" :key="n.id" :notification="n" />
-                  </template>
-                  <p v-else class="text-white text-center mt-2 mb-2">No tienes notificaciones</p>
-                </simplebar>
-              </BTab>
-              <BTab title="Chat">
-                <simplebar data-simplebar style="max-height: 300px" class="pe-2">
-                  <template v-if="notifications.chat.length">
-                    <NotificationItem v-for="n in notifications.chat" :key="n.id" :notification="n" />
+                  <template v-if="notifications.all.length">
+                    <NotificationItem v-for="n in notifications.all" :key="n.id" :notification="n"
+                      @read="markNotificationAsRead('all', n.id)" />
                   </template>
                   <p v-else class="text-white text-center mt-2 mb-2">No tienes notificaciones</p>
                 </simplebar>
@@ -116,10 +91,7 @@ export default {
   data() {
     return {
       notifications: {
-        usuarios: [],
-        foros: [],
-        grupos: [],
-        chat: []
+        all: [],
       }
     };
   },
@@ -159,7 +131,7 @@ export default {
     },
     // Carga las notificaciones guardadas en localStorage
     loadSavedNotifications() {
-      const types = ["usuarios", "foros", "grupos", "chat"];
+      const types = ["all"];
       types.forEach(type => {
         const stored = localStorage.getItem(`notis_${type}`);
         if (stored) this.notifications[type] = JSON.parse(stored);

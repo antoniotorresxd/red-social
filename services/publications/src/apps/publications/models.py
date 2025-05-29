@@ -28,4 +28,4 @@ class Comment(models.Model):
     post = models.ForeignKey(Publication, on_delete=models.CASCADE)
     user_id = models.IntegerField()
     content = models.TextField()
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)

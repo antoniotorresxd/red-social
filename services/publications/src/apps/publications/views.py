@@ -1,6 +1,5 @@
 # publications/views.py
 import requests
-from datetime import datetime
 from django.utils import timezone
 
 from django.conf import settings
@@ -11,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 
-from .models import Publication, Submission
-from .serializers import PublicationSerializer, SubmissionSerializer
+from .models import Publication, Submission, Comment
+from .serializers import CommentSerializer, PublicationSerializer, SubmissionSerializer
 
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -28,6 +27,53 @@ class PublicationViewSet(viewsets.ModelViewSet):
             'message': message,
             'status_code': status_code,
         }, status=status_code)
+
+    def _inject_user_names(self, items: list, key='user_id') -> list:
+        user_ids = {item[key] for item in items if item.get(key)}
+        if not user_ids:
+            return items
+
+        users = {}
+        ids_missing = []
+
+        for uid in user_ids:
+            cached = cache.get(f"user_{uid}")
+            if cached:
+                users[uid] = cached
+            else:
+                ids_missing.append(uid)
+
+        if ids_missing:
+            ids_param = ",".join(map(str, ids_missing))
+            headers = {}
+            auth_header = self.request.headers.get("Authorization")
+            if auth_header:
+                headers["Authorization"] = auth_header
+
+            try:
+                resp = requests.get(
+                    f"{settings.API_GATEWAY_URL}/microservice-users/",
+                    params={"ids": ids_param},
+                    headers=headers,
+                    timeout=2
+                )
+                resp.raise_for_status()
+                body = resp.json()
+                users_list = body.get("data", body) if isinstance(body, dict) else body
+
+                for u in users_list:
+                    uid = u["id"]
+                    users[uid] = u
+                    cache.set(f"user_{uid}", u, timeout=300)
+
+            except Exception:
+                pass 
+
+        for item in items:
+            user = users.get(item.get(key))
+            item["user_name"] = user.get("name") if user else None
+
+        return items
 
     def get_queryset(self):
         qs = Publication.objects.all()
@@ -49,40 +95,10 @@ class PublicationViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-  
             queryset = self.get_queryset()[:10]
             data = self.serializer_class(queryset, many=True).data
 
-            user_ids = {pub['user_id'] for pub in data}
-            if user_ids:
-                ids_param = ",".join(map(str, user_ids))
-                cache_key = f"users_batch_{ids_param}"
-
-                users = cache.get(cache_key)
-                if users is None:
-
-                    auth_header = request.headers.get("Authorization")
-                    headers = {}
-                    if auth_header:
-                        headers["Authorization"] = auth_header
-
-                    resp = requests.get(
-                        f"{settings.API_GATEWAY_URL}/microservice-users/",
-                        params={"ids": ids_param},
-                        headers=headers,
-                        timeout=2
-                    )
-                    resp.raise_for_status()
-
-                    body = resp.json()
-                    users_list = body.get("data", body) if isinstance(body, dict) else body
-                    users = {u["id"]: u for u in users_list}
-
-                    cache.set(cache_key, users, timeout=300)
-
-                for pub in data:
-                    user = users.get(pub["user_id"])
-                    pub["user_name"] = user["name"] if user else None
+            data = self._inject_user_names(data)
 
             return self.handle_message_response(
                 message="Publicaciones encontradas",
@@ -172,5 +188,56 @@ class PublicationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return self.handle_message_response(
                 message=f"Error al enviar la tarea: {str(e)}",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['post'], url_path='add-comment')
+    def add_comment(self, request, pk=None):
+        try:
+            user_id = request.headers.get('X-User-Id')
+            content = request.data.get('content')
+
+            if not content:
+                return self.handle_message_response(
+                    message="El comentario no puede estar vacío.",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            post = get_object_or_404(Publication, pk=pk)
+
+            comment = Comment.objects.create(
+                post=post,
+                user_id=user_id,
+                content=content,
+                timestamp=timezone.now()
+            )
+
+            serializer = CommentSerializer(comment)
+            return self.handle_message_response(
+                message="Comentario agregado correctamente",
+                status_code=status.HTTP_201_CREATED,
+                data=serializer.data
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al agregar comentario: {str(e)}",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['get'], url_path='comments')
+    def list_comments(self, request, pk=None):
+        try:
+            post = get_object_or_404(Publication, pk=pk)
+            comments = Comment.objects.filter(post=post).order_by('timestamp')[:5]
+            serialized = CommentSerializer(comments, many=True).data
+            enriched = self._inject_user_names(serialized)
+            return self.handle_message_response(
+                message="Comentarios listados correctamente",
+                status_code=status.HTTP_200_OK,
+                data=enriched
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al listar comentarios: {str(e)}",
                 status_code=status.HTTP_400_BAD_REQUEST
             )

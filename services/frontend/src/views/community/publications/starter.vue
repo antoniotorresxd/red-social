@@ -12,7 +12,7 @@
       </div>
 
       <!-- LISTADO DE PUBLICACIONES -->
-      <simplebar class="publications-list" data-simplebar style="max-height: 60vh;">
+      <simplebar class="publications-list" data-simplebar style="max-height: 75vh;">
         <div v-if="isLoadingPubs" class="text-center py-3">Cargando publicaciones…</div>
         <div v-else-if="errorPubs" class="text-danger text-center py-3">{{ errorPubs }}</div>
         <ul v-else class="list-unstyled">
@@ -368,6 +368,19 @@ export default {
         )
       }
     },
+    handleOutsideClick(event) {
+      const kebab = this.$refs.kebabBtn
+      const menu = document.querySelector('.dropdown-menu.show')
+
+      // Si se hace clic fuera del botón y del menú, lo cerramos
+      if (
+        this.showKebab &&
+        !kebab?.contains(event.target) &&
+        !menu?.contains(event.target)
+      ) {
+        this.showKebab = false
+      }
+    },
     toggleKebab() {
       this.showKebab = !this.showKebab
       if (this.showKebab) this.$nextTick(this.positionMenu)
@@ -473,7 +486,13 @@ export default {
       const newOrder = this.sortOrder === 'desc' ? 'asc' : 'desc'
       this.fetchPublications(newOrder)
     }
-  }
+  },
+  mounted() {
+    document.addEventListener('click', this.handleOutsideClick)
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleOutsideClick)
+  },
 }
 </script>
 

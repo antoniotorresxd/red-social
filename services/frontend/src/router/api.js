@@ -24,6 +24,7 @@ const apiUrl = {
     publication: {
       "publish"    : baseURL + "/microservice-publication/",
       "submit_task": baseURL + "/microservice-publication/submit-task/",
+      "add_comment": baseURL + "/microservice-publication/add-comment/",
     },
 
     chat: {

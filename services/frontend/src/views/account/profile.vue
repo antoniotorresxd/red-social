@@ -94,7 +94,9 @@ export default {
           email: this.user.email
         }
         await axios.put(api.users.user + user_id + "/", payload)
+        localStorage.setItem("user_name", this.user.name)
         this.editing = false
+        window.location.reload()
       } catch (error) {
         console.error('Error al actualizar perfil:', error)
       }
