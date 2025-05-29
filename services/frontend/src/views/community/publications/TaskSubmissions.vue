@@ -1,5 +1,5 @@
 <template>
-    <div class="task-submissions-card mx-auto my-4 p-4 border rounded shadow" style="max-width: 720px;">
+    <div class="task-submissions-card mx-auto my-4 p-4 border rounded shadow">
         <!-- Cabecera de la tarea -->
         <div class="d-flex justify-content-between align-items-start mb-3">
             <div>

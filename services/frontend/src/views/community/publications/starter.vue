@@ -2,14 +2,21 @@
   <div class="publications-wrapper">
 
     <div class="publications-area" ref="root">
-      <!-- HEADER: SIEMPRE visible -->
+
       <div class="d-flex justify-content-between align-items-center mb-3 pub-header" ref="header">
-        <button class="btn btn-ghost-secondary btn-icon" ref="kebabBtn" @click="toggleKebab">
+
+        <button v-if="showTaskSubmissions" class="btn btn-ghost-secondary btn-icon" @click="closeGrading">
+          <i class="ri-arrow-left-line fs-5"></i>
+        </button>
+
+        <button v-else class="btn btn-ghost-secondary btn-icon" ref="kebabBtn" @click="toggleKebab">
           <i class="ri-more-2-fill fs-5"></i>
         </button>
+
         <BButton variant="outline-secondary" size="sm" @click="onFilter">
           <i class="ri-filter-3-line me-1"></i> Ordenar
         </BButton>
+
       </div>
 
       <!-- ÁREA DINÁMICA: Cambia entre publicaciones y workspace entregas -->
@@ -20,7 +27,7 @@
             <div v-if="isLoadingPubs" class="text-center py-3">Cargando publicaciones…</div>
             <div v-else-if="errorPubs" class="text-danger text-center py-3">{{ errorPubs }}</div>
             <ul v-else class="list-unstyled">
-              <PublicationCard v-for="pub in filteredPublications" :key="pub.id" :pub="pub"
+              <PublicationCard class="m-2" v-for="pub in filteredPublications" :key="pub.id" :pub="pub"
                 :selectedType="selected.type" :isAdmin="isAdmin" @upload-task="openUploadModal"
                 @grade-task="openGrading" />
               <li v-if="!filteredPublications.length" class="text-center text-muted py-3">
@@ -76,7 +83,8 @@
 
     <!-- MODAL “Crear tarea” (solo admin y grupos) -->
     <teleport to="body">
-      <div v-if="modalType === 'task'" class="publish-overlay mt-5 pt-5" :style="modalOverlayStyles" @click.self="closeModal">
+      <div v-if="modalType === 'task'" class="publish-overlay mt-5 pt-5" :style="modalOverlayStyles"
+        @click.self="closeModal">
         <div class="publish-card">
           <h5 class="mb-3">Crear tarea</h5>
           <label for="">Nombre de la tarea</label>
