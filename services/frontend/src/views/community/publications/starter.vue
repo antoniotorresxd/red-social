@@ -1,7 +1,8 @@
 <template>
   <div class="publications-wrapper">
+
     <div class="publications-area" ref="root">
-      <!-- HEADER -->
+      <!-- HEADER: SIEMPRE visible -->
       <div class="d-flex justify-content-between align-items-center mb-3 pub-header" ref="header">
         <button class="btn btn-ghost-secondary btn-icon" ref="kebabBtn" @click="toggleKebab">
           <i class="ri-more-2-fill fs-5"></i>
@@ -11,19 +12,26 @@
         </BButton>
       </div>
 
-      <!-- LISTADO DE PUBLICACIONES -->
-      <simplebar class="publications-list" data-simplebar style="max-height: 75vh;">
-        <div v-if="isLoadingPubs" class="text-center py-3">Cargando publicaciones…</div>
-        <div v-else-if="errorPubs" class="text-danger text-center py-3">{{ errorPubs }}</div>
-        <ul v-else class="list-unstyled">
-          <PublicationCard v-for="pub in filteredPublications" :key="pub.id" :pub="pub" :selectedType="selected.type"
-            :isAdmin="isAdmin" @upload-task="openUploadModal" />
-          <li v-if="!filteredPublications.length" class="text-center text-muted py-3">
-            <!-- No hay publicaciones que mostrar -->
-          </li>
-        </ul>
-      </simplebar>
+      <!-- ÁREA DINÁMICA: Cambia entre publicaciones y workspace entregas -->
+      <div>
+        <TaskSubmissions v-if="showTaskSubmissions" :task-id="gradingTask?.id" @close="closeGrading" />
+        <template v-else>
+          <simplebar class="publications-list" data-simplebar style="max-height: 75vh;">
+            <div v-if="isLoadingPubs" class="text-center py-3">Cargando publicaciones…</div>
+            <div v-else-if="errorPubs" class="text-danger text-center py-3">{{ errorPubs }}</div>
+            <ul v-else class="list-unstyled">
+              <PublicationCard v-for="pub in filteredPublications" :key="pub.id" :pub="pub"
+                :selectedType="selected.type" :isAdmin="isAdmin" @upload-task="openUploadModal"
+                @grade-task="openGrading" />
+              <li v-if="!filteredPublications.length" class="text-center text-muted py-3">
+                <!-- No hay publicaciones que mostrar -->
+              </li>
+            </ul>
+          </simplebar>
+        </template>
+      </div>
     </div>
+
 
     <!-- MODALES -->
     <TaskUploadModal :show="showUploadModal" :task="selectedTask" :overlayStyles="uploadOverlayStyles"
@@ -68,12 +76,15 @@
 
     <!-- MODAL “Crear tarea” (solo admin y grupos) -->
     <teleport to="body">
-      <div v-if="modalType === 'task'" class="publish-overlay" :style="modalOverlayStyles" @click.self="closeModal">
+      <div v-if="modalType === 'task'" class="publish-overlay mt-5 pt-5" :style="modalOverlayStyles" @click.self="closeModal">
         <div class="publish-card">
           <h5 class="mb-3">Crear tarea</h5>
-          <input v-model="taskTitle" type="text" class="form-control mb-3" placeholder="Nombre de la tarea" />
-          <textarea v-model="taskDesc" class="form-control mb-3" rows="4"
-            placeholder="Descripción de la tarea"></textarea>
+          <label for="">Nombre de la tarea</label>
+          <input v-model="taskTitle" type="text" class="form-control mb-3" placeholder="" />
+          <label for="">Descripción de la tarea</label>
+          <textarea v-model="taskDesc" class="form-control mb-3" rows="4" placeholder=""></textarea>
+          <label for="">Fecha de vencimiento</label>
+          <input v-model="taskDue" class="form-control mb-3" type="datetime-local" name="" id="">
           <div class="text-end">
             <BButton variant="secondary" @click="closeModal">Cancelar</BButton>
             <BButton variant="primary" class="ms-2" :disabled="isSubmittingTask" @click="submitTask">
@@ -97,12 +108,14 @@ import TaskUploadModal from './TaskUploadModal.vue'
 import MembersModal from './MembersModal.vue'
 import DeleteCommunityModal from './DeleteCommunityModal.vue'
 import ExitCommunityModal from './ExitCommunityModal.vue'
+import TaskSubmissions from './TaskSubmissions.vue'
+
 
 export default {
   name: 'PublicationsStarter',
   components: {
     simplebar, BButton,
-    PublicationCard, TaskUploadModal, MembersModal, DeleteCommunityModal, ExitCommunityModal
+    PublicationCard, TaskUploadModal, MembersModal, DeleteCommunityModal, ExitCommunityModal, TaskSubmissions,
   },
   props: {
     selected: { type: Object, required: true }
@@ -126,6 +139,7 @@ export default {
       // tarea
       taskTitle: '',
       taskDesc: '',
+      taskDue: '',
       isSubmittingTask: false,
       // Integrantes
       showMembers: false,
@@ -147,6 +161,9 @@ export default {
       showUploadModal: false,
       selectedTask: null,
       uploadOverlayStyles: {},
+      // submmision task
+      showTaskSubmissions: false,
+      gradingTask: null,
     }
   },
   computed: {
@@ -164,6 +181,8 @@ export default {
   watch: {
     selected: {
       handler() {
+        this.showTaskSubmissions = false;
+        this.gradingTask = null;
         this.setupKebab()
         this.fetchPublications()
       },
@@ -171,6 +190,14 @@ export default {
     }
   },
   methods: {
+    openGrading(pub) {
+      this.gradingTask = pub
+      this.showTaskSubmissions = true
+    },
+    closeGrading() {
+      this.showTaskSubmissions = false
+      this.gradingTask = null
+    },
     // ===== MODALES HIJOS =====
     openUploadModal(pub) {
       this.selectedTask = pub
@@ -286,6 +313,7 @@ export default {
       this.newPost = ''
       this.taskTitle = ''
       this.taskDesc = ''
+      this.taskDue = ''
     },
     positionModalOverlay() {
       const root = this.$refs.root.getBoundingClientRect()
@@ -440,7 +468,9 @@ export default {
           user_id: localStorage.getItem('user_id'),
           type: 'task',
           title: this.taskTitle.trim(),
-          description: this.taskDesc.trim()
+          description: this.taskDesc.trim(),
+          due_date: this.taskDue
+
         })
         await this.fetchPublications()
         this.closeModal()

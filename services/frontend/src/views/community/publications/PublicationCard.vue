@@ -97,8 +97,6 @@ export default {
       try {
         await axios.post(`${api.publication.publish}${this.pub.id}/add-comment/`, {
           content: this.newComment
-        }, {
-          headers: { 'X-User-Id': localStorage.getItem('user_id') }
         })
         this.newComment = ''
         this.fetchComments()

@@ -241,3 +241,22 @@ class PublicationViewSet(viewsets.ModelViewSet):
                 message=f"Error al listar comentarios: {str(e)}",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
+
+    @action(detail=True, methods=['get'], url_path='submissions')
+    def list_submissions(self, request, pk=None):
+        try:
+            task = get_object_or_404(Publication, pk=pk, type='task')
+            submissions = Submission.objects.filter(task=task)
+            serialized = SubmissionSerializer(submissions, many=True).data
+
+            enriched = self._inject_user_names(serialized)
+            return self.handle_message_response(
+                message="Entregas listadas correctamente",
+                status_code=status.HTTP_200_OK,
+                data=enriched
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al listar entregas: {str(e)}",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
