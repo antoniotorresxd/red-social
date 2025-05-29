@@ -11,7 +11,7 @@
                 </div>
             </div>
             <div class="task-title text-end">
-                <span class="fw-bold">{{ task?.title || '' }}</span>
+                <!-- <span class="fw-bold">{{ task?.title || '' }}</span> -->
             </div>
         </div>
 
@@ -24,10 +24,10 @@
             <div v-if="submissions.length">
                 <div v-for="submission in submissions" :key="submission.id"
                     class="submission-card d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
-                    <div>
+                    <div class="">
                         <div class="fw-bold">{{ submission.user_name }}</div>
                         <div class="text-muted small">{{ formatDate(submission.submitted_at) }}</div>
-                        <div>
+                        <div class="file-link mb-1 text-break">
                             <a :href="submission.file" target="_blank" rel="noopener">
                                 <i class="ri-file-pdf-line"></i>
                                 {{ extractFileName(submission.file) }}
@@ -114,12 +114,11 @@ export default {
         async fetchTaskAndSubmissions() {
             this.isLoading = true
             try {
-                // 1. Trae los datos de la tarea
                 const taskRes = await axios.get(`${api.publication.publish}${this.taskId}/`)
                 this.task = taskRes.data.data
 
-                // 2. Trae las entregas
                 const { data } = await axios.get(`${api.publication.publish}${this.taskId}/submissions/`)
+                console.log(data)
                 this.submissions = data.data || []
             } catch (e) {
                 this.submissions = []
@@ -150,7 +149,7 @@ export default {
             if (!this.grade) return
             this.isSubmitting = true
             try {
-                await axios.post(`${api.publication.publish}grader/${this.selectedSubmission.id}/`, {
+                await axios.post(`${api.publication.publish}${this.taskId}/submissions/${this.selectedSubmission.id}/grader/`, {
                     grade: this.grade
                 })
                 this.closeModal()
@@ -166,12 +165,21 @@ export default {
 </script>
 
 <style scoped>
+
+
 .task-submissions-card {
     background: #fff;
 }
 
 .submission-card {
     background: #f8f9fa;
+      display: flex !important;
+  flex-wrap: wrap;
+  align-items: flex-start; /* para alinear items en multi-línea */
+}
+
+.submission-card > div:last-child {
+  margin-left: auto;
 }
 
 .grade-modal-overlay {

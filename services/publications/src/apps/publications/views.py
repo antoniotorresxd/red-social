@@ -260,3 +260,47 @@ class PublicationViewSet(viewsets.ModelViewSet):
                 message=f"Error al listar entregas: {str(e)}",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
+        
+    @action(detail=True, methods=['post'], url_path=r'submissions/(?P<submission_id>[^/.]+)/grader')
+    def grade_submission(self, request, pk=None, submission_id=None):
+        try:
+
+            task = get_object_or_404(Publication, pk=pk, type='task')
+
+            submission = get_object_or_404(Submission, pk=submission_id, task=task)
+
+            grade = request.data.get('grade')
+            if grade is None:
+                return self.handle_message_response(
+                    message="El campo 'grade' es obligatorio.",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                grade = int(grade)
+            except ValueError:
+                raise ValueError("La calificación debe ser un número entero.")
+            if not (0 <= grade <= 10):
+                raise ValueError("La calificación debe estar entre 0 y 10.")
+
+            submission.grade = grade
+            submission.reviewed = True
+
+            submission.save()
+
+            serializer = SubmissionSerializer(submission)
+            return self.handle_message_response(
+                message="Calificación registrada correctamente",
+                status_code=status.HTTP_200_OK,
+                data=serializer.data
+            )
+        except ValueError as ve:
+            return self.handle_message_response(
+                message=str(ve),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al calificar la tarea: {str(e)}",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )

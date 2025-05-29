@@ -45,8 +45,11 @@
                       <img :src="f.image" class="rounded-circle img-fluid userprofile" />
                     </div>
                     <div class="avatar-xxs" v-else>
-                      <div class="avatar-title rounded-circle bg-danger userprofile">
+                      <!-- <div class="avatar-title rounded-circle bg-danger userprofile">
                         {{ f.name.charAt(0) }}
+                      </div> -->
+                      <div class="avatar-title  userprofile">
+                        <!-- {{ f.name.charAt(0) }} -->
                       </div>
                     </div>
                   </div>

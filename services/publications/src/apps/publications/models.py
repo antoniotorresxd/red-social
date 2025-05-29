@@ -23,6 +23,7 @@ class Submission(models.Model):
     submitted_at = models.DateTimeField()
     is_late = models.BooleanField()
     reviewed = models.BooleanField()
+    grade = models.IntegerField(null=True, blank=True)
 
 class Comment(models.Model):
     post = models.ForeignKey(Publication, on_delete=models.CASCADE)
