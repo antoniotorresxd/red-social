@@ -60,8 +60,6 @@ coverage/
 *.exe
 *.test
 *.out
-*.mod
-*.sum
 
 # ---------------------------------------
 # Docker
