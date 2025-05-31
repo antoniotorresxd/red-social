@@ -25,7 +25,7 @@ COPY src/entrypoint.dev.sh .
 RUN chmod +x entrypoint.dev.sh
 
 # 7) Exponer el puerto de desarrollo
-EXPOSE 8001
+EXPOSE 8003
 
 # 8) Arranque con tu script de dev
 ENTRYPOINT ["./entrypoint.dev.sh"]
