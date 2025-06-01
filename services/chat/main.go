@@ -29,9 +29,8 @@ func serveWs(h *hub.Hub, w http.ResponseWriter, r *http.Request) {
 	}
 	h.Register <- client
 
-	// Arranca los pumps
 	go client.WritePump()
-	client.ReadPump()
+	go client.ReadPump()
 }
 
 func main() {

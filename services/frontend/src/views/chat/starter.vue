@@ -1,19 +1,15 @@
 <template>
   <Layout>
     <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
-      <!-- Sidebar (idéntico al tuyo) -->
+
+      <!-- Sidebar de chats -->
       <div class="chat-leftsidebar border d-flex flex-column">
-        <!-- Header + buscador + botón -->
         <div class="px-4 pt-4 mb-4">
           <div class="d-flex align-items-start">
-            <div class="flex-grow-1">
-              <h5 class="mb-4">Chats</h5>
-            </div>
-            <div class="flex-shrink-0 position-relative" ref="menuWrapper">
-              <BButton variant="soft-primary" size="sm" @click="openCreateChat">
-                <i class="ri-add-line align-bottom" />
-              </BButton>
-            </div>
+            <h5 class="flex-grow-1 mb-4">Chats</h5>
+            <BButton variant="soft-primary" size="sm" @click="openCreateChat">
+              <i class="ri-add-line align-bottom" />
+            </BButton>
           </div>
           <div class="search-box mt-2">
             <input v-model="searchQuery" type="text" class="form-control bg-light border-light"
@@ -22,26 +18,26 @@
           </div>
         </div>
 
-        <!-- Lista de chats -->
         <simplebar class="chat-room-list flex-fill" data-simplebar>
           <ul class="list-unstyled chat-list chat-user-list">
             <li v-for="chat in filteredChats" :key="chat._id" @click="selectChat(chat)"
               :class="{ active: activeChat && activeChat._id === chat._id }" class="py-2 px-3 hover-bg rounded mb-1">
               <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 chat-user-img online align-self-center me-2">
+                <div class="flex-shrink-0 chat-user-img online me-2">
                   <div class="avatar-xxs"></div>
                 </div>
-                <div class="flex-grow-1 overflow-hidden">
-                  <p class="text-truncate mb-0">{{ getChatName(chat) }}</p>
-                </div>
+                <p class="mb-0 text-truncate flex-grow-1">
+                  {{ getChatName(chat) }}
+                </p>
               </div>
             </li>
           </ul>
         </simplebar>
       </div>
 
-      <!-- Área de trabajo (idéntico al de Community, sin forzar height) -->
+      <!-- Área de chat -->
       <div class="user-chat w-100 d-flex flex-column p-4">
+
         <!-- Header móvil -->
         <div class="d-flex align-items-center mb-4 d-lg-none">
           <BLink href="javascript:void(0)" class="user-chat-remove fs-18 p-1 me-3">
@@ -51,8 +47,7 @@
         </div>
 
         <!-- Formulario de crear chat -->
-
-        <div v-if="showCreateChat" class="mt-4 d-flex ">
+        <div v-if="showCreateChat" class="mt-4 d-flex">
           <div class="card shadow-sm" style="min-width: 330px; max-width: 350px;">
             <div class="card-body">
               <h5 class="card-title text-center mb-3">Agregar chat</h5>
@@ -69,29 +64,28 @@
           </div>
         </div>
 
-
+        <!-- Área de mensajes -->
         <template v-else-if="activeChat">
-          <!-- Mensajes (única parte scrollable) -->
-          <div class="messages-area flex-grow-1 overflow-auto">
-            <div v-for="msg in messages" :key="msg._id" class="mb-3">
-              <div :class="msg.sender_id === userId ? 'text-end' : 'text-start'">
-                <div :class="[
-                  'd-inline-block px-3 py-2 rounded',
-                  msg.sender_id === userId
-                    ? 'bg-primary text-white'
-                    : 'bg-light text-dark'
-                ]">
-                  {{ msg.message }}
-                </div>
-                <small class="d-block text-muted">{{ formatTimestamp(msg.timestamp) }}</small>
-              </div>
-            </div>
-          </div>
+          <simplebar ref="messagesArea" class="messages-area flex-grow-1" data-simplebar>
 
-          <!-- Input de chat siempre abajo, igual que en Community -->
+            <!-- <div class="messages-area flex-grow-1 overflow-auto"> -->
+            <div v-for="msg in messages" :key="msg._id" class="mb-3"
+              :class="msg.sender_id === userId ? 'text-end' : 'text-start'">
+              <div :class="[
+                'd-inline-block px-3 py-2 rounded',
+                msg.sender_id === userId ? 'bg-primary text-white' : 'bg-light text-dark'
+              ]">
+                {{ msg.message }}
+              </div>
+              <small class="d-block text-muted">{{ formatTimestamp(msg.timestamp) }}</small>
+            </div>
+            <!-- </div> -->
+            <div ref="bottomAnchor"></div>
+          </simplebar>
+
           <div class="chat-input bg-white border-top pt-3 pb-3 mb-5">
             <div class="d-flex">
-              <input type="text" v-model="newMessage" class="form-control me-2" placeholder="Escribe un mensaje..."
+              <input v-model="newMessage" type="text" class="form-control me-2" placeholder="Escribe un mensaje..."
                 @keyup.enter="handleSubmitMessage" />
               <BButton variant="primary" size="sm" @click="handleSubmitMessage">
                 Enviar
@@ -100,7 +94,7 @@
           </div>
         </template>
 
-        <!-- Si no hay chat seleccionado, ocupa espacio en blanco -->
+        <!-- Espacio vacío si no hay chat activo -->
         <div v-else class="flex-grow-1"></div>
       </div>
     </div>
@@ -125,18 +119,18 @@ export default {
       chatEmail: '',
       showCreateChat: false,
       searchQuery: '',
-      userId: localStorage.getItem('user_id'),
       wsReady: false,
+      userId: localStorage.getItem('user_id'),
       userEmail: localStorage.getItem('user_email'),
     }
   },
   computed: {
     filteredChats() {
-      const lower = this.searchQuery.toLowerCase()
-      return lower
-        ? this.chatList.filter(c => this.getChatName(c).toLowerCase().includes(lower))
+      const query = this.searchQuery.toLowerCase()
+      return query
+        ? this.chatList.filter(c => this.getChatName(c).toLowerCase().includes(query))
         : this.chatList
-    },
+    }
   },
   methods: {
     openCreateChat() {
@@ -147,6 +141,11 @@ export default {
     },
     selectChat(chat) {
       this.activeChat = chat
+      this.messages = [] // limpiar mensajes actuales
+      this.sendWebSocketMessage({
+        event: 'join_chat',
+        room_id: chat._id,
+      })
       this.showCreateChat = false
       if (window.innerWidth < 992) {
         document.querySelector('.user-chat').classList.add('user-chat-show')
@@ -157,16 +156,14 @@ export default {
     },
     async getUserIdByEmail(email) {
       try {
-        const response = await axios.get(api.users.find_by_email, {
-          params: { email }
-        })
-        return (response.data.data && response.data.data.id) || null
+        const { data } = await axios.get(api.users.find_by_email, { params: { email } })
+        return data.data?.id || null
       } catch {
         return null
       }
     },
     sendWebSocketMessage(payload) {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify(payload))
       } else {
         alert('Conexión de chat no lista. Intenta de nuevo.')
@@ -179,88 +176,138 @@ export default {
       }
       const targetUserId = await this.getUserIdByEmail(this.chatEmail)
       if (!targetUserId) return
-      const payload = {
+
+      this.sendWebSocketMessage({
         event: 'create_chat',
         participants: [this.userId, targetUserId.toString()],
         token: localStorage.getItem('access'),
-      }
-      this.sendWebSocketMessage(payload)
+      })
+
       this.showCreateChat = false
       this.chatEmail = ''
     },
     handleSubmitMessage() {
+      const text = this.newMessage.trim()
+      if (!text || !this.activeChat) return
+
+      if (this.ws?.readyState !== WebSocket.OPEN) {
+        console.warn("WebSocket no está listo")
+        return
+      }
+
+      const payload = {
+        event: 'submit_message',
+        room_id: this.activeChat._id,
+        sender: this.userId,
+        message: text,
+      }
+      this.ws.send(JSON.stringify(payload))
       this.newMessage = ''
     },
+
     initializeWebSocket() {
       this.ws = new WebSocket(api.chat.ws_chat)
       this.ws.onopen = () => {
         this.wsReady = true
-        const payload = {
+        this.sendWebSocketMessage({
           event: 'list_chats',
-          user: this.userId.toString(),
+          user: this.userId,
           token: localStorage.getItem('access'),
+        })
+      }
+
+      this.ws.onmessage = ({ data }) => {
+        const msg = JSON.parse(data)
+        switch (msg.event) {
+          case 'chats_list':
+            this.chatList = msg.chats || []
+            break
+          case 'chat_created':
+            this.chatList.unshift({ _id: msg.room_id, participants: msg.participants })
+            this.activeChat = this.chatList[0]
+            break
+          case 'chat_exists':
+            this.activeChat = this.chatList.find(c => c._id === msg.room_id) || null
+            break
+          case 'new_message':
+            if (this.activeChat && msg.room_id === this.activeChat._id) {
+              this.messages.push({
+                _id: Date.now().toString(),
+                sender_id: msg.sender,
+                message: msg.message,
+                timestamp: msg.timestamp,
+              })
+              this.$nextTick(() => this.scrollToBottom(true))
+            }
+            break
+          case 'chat_history':
+            if (this.activeChat && msg.room_id === this.activeChat._id && Array.isArray(msg.messages)) {
+              console.log(msg.messages)
+              this.messages = msg.messages.map(m => ({
+                _id: m._id,
+                sender_id: m.sender_id,
+                message: m.message,
+                timestamp: m.timestamp,
+              }))
+            } else {
+              this.messages = []
+            }
+            this.$nextTick(() => this.scrollToBottom(true))
+            break
         }
-        this.sendWebSocketMessage(payload)
       }
-      this.ws.onmessage = event => {
-        const data = JSON.parse(event.data)
-        if (data.event === 'chats_list') {
-          this.chatList = data.chats || []
-        } else if (data.event === 'chat_created') {
-          this.chatList.unshift({ _id: data.room_id, participants: data.participants })
-          this.activeChat = this.chatList[0]
-        } else if (data.event === 'chat_exists') {
-          this.activeChat = this.chatList.find(c => c._id === data.room_id) || null
-        }
-      }
-      this.ws.onclose = () => {
-        this.wsReady = false
-      }
-      this.ws.onerror = () => {
+
+      this.ws.onclose = this.ws.onerror = () => {
         this.wsReady = false
       }
     },
     getChatName(chat) {
-      if (!Array.isArray(chat.participants)) return 'Chat'
-      const filtered = chat.participants.filter(e => !!e)
-      const other = filtered.find(e => e !== this.userEmail)
+      const other = (chat.participants || []).find(e => e !== this.userEmail)
       return other || 'Chat'
     },
+scrollToBottom(force = false) {
+  const wrapper = this.$refs.messagesArea?.$el || this.$refs.messagesArea
+  const scrollEl = wrapper?.querySelector('.simplebar-content-wrapper')
+  if (!scrollEl) return
+
+  const atBottom =
+    scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 50
+
+  if (force || atBottom) {
+    scrollEl.scrollTop = scrollEl.scrollHeight
+  }
+}
+
+
   },
   mounted() {
-    document.querySelectorAll('.user-chat-remove').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelector('.user-chat').classList.remove('user-chat-show')
+    document.querySelectorAll('.user-chat-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.user-chat')?.classList.remove('user-chat-show')
       })
     })
     this.initializeWebSocket()
   },
   beforeUnmount() {
-    if (this.ws) this.ws.close()
+    this.ws?.close()
   },
 }
 </script>
 
 <style scoped>
-.chat-leftsidebar .dropdown-menu {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
 .chat-wrapper {
   position: relative;
   min-height: calc(100vh - 56px);
 }
 
-/* .user-chat en escritorio NO forzamos height; solo en móvil lo hacemos deslizante */
 .user-chat {
   display: flex;
   flex-direction: column;
-   background: #fff;
+  background: #fff;
+  height: 100%;
 }
 
 @media (max-width: 991.98px) {
-
-  /* En móvil, abrimos/deslizamos la capa completa */
   .user-chat {
     position: absolute;
     top: 0;
@@ -278,20 +325,26 @@ export default {
   }
 }
 
+@media (min-width: 992px) {
+  .user-chat {
+    position: relative;
+    transform: none !important;
+  }
+}
+
 .messages-area {
-  flex: 1 1 0;
+  flex-grow: 1;
+  height: 100%;
   min-height: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-input {
   flex: 0 0 auto;
 }
 
-@media (min-width: 992px) {
-  .user-chat {
-    position: relative;
-    transform: none !important;
-  }
+.chat-leftsidebar .dropdown-menu {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -3,40 +3,54 @@ package hub
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/antoniotorresxd/chat/internal/models"
-	"github.com/gorilla/websocket"
+	"github.com/antoniotorresxd/chat/internal/utils"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func handleSubmitMessage(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
+func handleSubmitMessage(client *Client, msgBytes []byte, hub *Hub) {
 	type Payload struct {
 		Event   string `json:"event"`
 		RoomID  string `json:"room_id"`
-		Sender  string `json:"sender"` // ObjectID string
+		Sender  string `json:"sender"`  // Hex string
 		Message string `json:"message"`
 	}
+
 	var data Payload
 	if err := json.Unmarshal(msgBytes, &data); err != nil {
-		sendError(conn, "Payload inválido para submit_message")
-		return
-	}
-	roomObjID, err := primitive.ObjectIDFromHex(data.RoomID)
-	if err != nil {
-		sendError(conn, "RoomID inválido")
-		return
-	}
-	senderObjID, err := primitive.ObjectIDFromHex(data.Sender)
-	if err != nil {
-		sendError(conn, "SenderID inválido")
-		return
-	}
-	if len(data.Message) == 0 {
-		sendError(conn, "El mensaje no puede estar vacío")
+		sendError(client.Conn, "Payload inválido para submit_message")
 		return
 	}
 
+	// Validaciones básicas
+	if len(data.Message) == 0 {
+		sendError(client.Conn, "El mensaje no puede estar vacío")
+		return
+	}
+
+	roomObjID, err := primitive.ObjectIDFromHex(data.RoomID)
+	if err != nil {
+		sendError(client.Conn, "RoomID inválido")
+		return
+	}
+
+	senderObjID, err := utils.GenerateObjectIDFromNumericID(data.Sender)
+	if err != nil {
+		sendError(client.Conn, "Sender inválido")
+		return
+	}
+	
+	// Verifica que el cliente esté en la sala
+	if client.RoomID != data.RoomID {
+		sendError(client.Conn, "No estás unido a esta sala")
+		return
+	}
+
+	// Guardar el mensaje
 	msg := models.Message{
 		ID:        primitive.NewObjectID(),
 		RoomID:    roomObjID,
@@ -44,12 +58,12 @@ func handleSubmitMessage(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
 		Text:      data.Message,
 		CreatedAt: time.Now(),
 	}
-	_, err = hub.msgsColl.InsertOne(context.Background(), msg)
-	if err != nil {
-		sendError(conn, "No se pudo guardar el mensaje")
+	if _, err := hub.msgsColl.InsertOne(context.Background(), msg); err != nil {
+		sendError(client.Conn, "No se pudo guardar el mensaje")
 		return
 	}
 
+	// Armar payload de respuesta
 	resp := map[string]interface{}{
 		"event":     "new_message",
 		"room_id":   data.RoomID,
@@ -57,5 +71,21 @@ func handleSubmitMessage(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
 		"message":   data.Message,
 		"timestamp": msg.CreatedAt,
 	}
-	_ = conn.WriteJSON(resp)
+	msgBytesOut, _ := json.Marshal(resp)
+
+	hub.mu.Lock()
+	defer hub.mu.Unlock()
+
+	if len(hub.Clients) == 0 {
+		log.Println("⚠️ No hay clientes registrados en el Hub")
+		return
+	}
+
+	for c := range hub.Clients {
+		// log.Printf("👤 Cliente conectado: %p en RoomID=%s", c, c.RoomID)
+		if c.RoomID == data.RoomID {
+			// log.Println("✅ Mensaje enviado a cliente en la sala")
+			c.Send <- msgBytesOut
+		}
+	}
 }

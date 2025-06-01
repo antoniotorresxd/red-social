@@ -3,18 +3,17 @@ package hub
 import (
     "context"
     "encoding/json"
-    "log"
 
     "github.com/antoniotorresxd/chat/internal/models"
+    "github.com/antoniotorresxd/chat/internal/utils"
     "github.com/gorilla/websocket"
     "go.mongodb.org/mongo-driver/bson"
-    "github.com/antoniotorresxd/chat/internal/utils"
 )
 
 func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
     type Payload struct {
         Event string `json:"event"`
-        User  string `json:"user"` // Numeric ID como string
+        User  string `json:"user"` // ID numérico como string
     }
 
     var data Payload
@@ -29,8 +28,8 @@ func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
         return
     }
 
-    // Busca los chats donde el usuario es participante
-    filter := bson.M{"participants.object_id": userObjID}
+    filter := bson.M{"participant_ids": userObjID}
+
     cursor, err := hub.roomsColl.Find(context.Background(), filter)
     if err != nil {
         sendError(conn, "No se pudieron obtener los chats")
@@ -44,17 +43,16 @@ func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
         return
     }
 
-    // Construye la respuesta usando los emails guardados
     var responseChats []map[string]interface{}
     for _, chat := range chats {
-        var participants []string
+        var emails []string
         for _, p := range chat.Participants {
-            participants = append(participants, p.Email)
+            emails = append(emails, p.Email)
         }
 
         responseChats = append(responseChats, map[string]interface{}{
             "_id":          chat.ID.Hex(),
-            "participants": participants,
+            "participants": emails,
         })
     }
 

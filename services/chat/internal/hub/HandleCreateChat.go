@@ -11,14 +11,16 @@ import (
     "github.com/gorilla/websocket"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "go.mongodb.org/mongo-driver/mongo"
 )
 
 func handleCreateChat(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
     type Payload struct {
         Event        string   `json:"event"`
-        Participants []string `json:"participants"` 
-        Token        string   `json:"token"`      
+        Participants []string `json:"participants"`
+        Token        string   `json:"token"`
     }
+
     var data Payload
     if err := json.Unmarshal(msgBytes, &data); err != nil {
         sendError(conn, "Payload inválido para create_chat")
@@ -30,60 +32,68 @@ func handleCreateChat(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
         return
     }
 
-    // Obtener emails de participantes usando el token recibido
     idToEmail, err := utils.GetEmailsForUsers(data.Participants, data.Token)
     if err != nil {
-        sendError(conn, "No se pudieron obtener los emails de los participantes")
+        sendError(conn, "No se pudieron obtener los correos")
         return
     }
 
-    // Crear slice de ChatParticipant con ObjectID, NumericID y Email
     var participants []models.ChatParticipant
-    for _, idStr := range data.Participants {
-        objID, err := utils.GenerateObjectIDFromNumericID(idStr)
+    var objectIDs []primitive.ObjectID
+
+    for _, id := range data.Participants {
+        objID, err := utils.GenerateObjectIDFromNumericID(id)
         if err != nil {
-            sendError(conn, fmt.Sprintf("Error al generar ObjectID: %s", err))
+            sendError(conn, fmt.Sprintf("ID inválido: %s", id))
             return
         }
-        email := idToEmail[idStr]
+        email := idToEmail[id]
         participants = append(participants, models.ChatParticipant{
             ObjectID:  objID,
-            NumericID: idStr,
+            NumericID: id,
             Email:     email,
         })
+        objectIDs = append(objectIDs, objID)
     }
 
-    // Buscar si ya existe un chat entre esos dos participantes
-    objectIDs := []primitive.ObjectID{participants[0].ObjectID, participants[1].ObjectID}
-    filter := bson.M{"participants.object_id": bson.M{"$all": objectIDs}, "participants": bson.M{"$size": 2}}
-    var room models.ChatRoom
-    err = hub.roomsColl.FindOne(context.Background(), filter).Decode(&room)
+    // Revisa si ya existe un chat entre estos dos usuarios
+    filter := bson.M{
+        "participant_ids": bson.M{"$all": objectIDs},
+        "participant_ids.2": bson.M{"$exists": false}, // para limitar a exactamente 2
+    }
+
+    var existing models.ChatRoom
+    err = hub.roomsColl.FindOne(context.Background(), filter).Decode(&existing)
     if err == nil {
+        // Chat ya existe
         resp := map[string]interface{}{
             "event":        "chat_exists",
-            "room_id":      room.ID.Hex(),
+            "room_id":      existing.ID.Hex(),
             "participants": []string{participants[0].Email, participants[1].Email},
         }
         _ = conn.WriteJSON(resp)
         return
+    } else if err != mongo.ErrNoDocuments {
+        sendError(conn, "Error al verificar chats existentes")
+        return
     }
 
-    room.ID = primitive.NewObjectID()
-    room.Participants = participants
+    roomID := primitive.NewObjectID()
     _, err = hub.roomsColl.InsertOne(context.Background(), bson.M{
-        "_id":         room.ID,
-        "participants": participants,
-        "created_at":   time.Now(),
-        "updated_at":   time.Now(),
+        "_id":            roomID,
+        "participants":   participants,
+        "participant_ids": objectIDs,
+        "created_at":     time.Now(),
+        "updated_at":     time.Now(),
     })
     if err != nil {
-        sendError(conn, "No se pudo crear la sala")
+        sendError(conn, "No se pudo crear el chat")
         return
     }
 
     resp := map[string]interface{}{
         "event":        "chat_created",
-        "room_id":      room.ID.Hex(),
+        "room_id":      roomID.Hex(),
         "participants": []string{participants[0].Email, participants[1].Email},
     }
     _ = conn.WriteJSON(resp)

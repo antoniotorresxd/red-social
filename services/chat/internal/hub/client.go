@@ -8,14 +8,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Client representa una conexión activa de WebSocket
 type Client struct {
-	Conn *websocket.Conn
-	Send chan []byte
-	Hub  *Hub
+	Conn   *websocket.Conn
+	Send   chan []byte
+	Hub    *Hub
+	RoomID string
 }
 
-// ReadPump lee mensajes desde la conexión WebSocket y los despacha al router de eventos.
 func (c *Client) ReadPump() {
 	defer func() {
 		c.Hub.Unregister <- c
@@ -27,6 +26,7 @@ func (c *Client) ReadPump() {
 		c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 		return nil
 	})
+
 	for {
 		_, msg, err := c.Conn.ReadMessage()
 		if err != nil {
@@ -37,13 +37,13 @@ func (c *Client) ReadPump() {
 	}
 }
 
-// WritePump envía mensajes al cliente WebSocket
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(54 * time.Second)
 	defer func() {
 		ticker.Stop()
 		c.Conn.Close()
 	}()
+
 	for {
 		select {
 		case msg, ok := <-c.Send:
@@ -64,7 +64,6 @@ func (c *Client) WritePump() {
 	}
 }
 
-// DispatchEvent analiza el evento recibido y llama al handler correspondiente
 func DispatchEvent(c *Client, msg []byte, hub *Hub) {
 	var generic struct {
 		Event string `json:"event"`
@@ -77,9 +76,9 @@ func DispatchEvent(c *Client, msg []byte, hub *Hub) {
 	case "create_chat":
 		HandleCreateChat(c.Conn, msg, hub)
 	case "join_chat":
-		HandleJoinChat(c.Conn, msg, hub)
+		HandleJoinChat(c, msg, hub) // <- nota: pasamos el client
 	case "submit_message":
-		HandleSubmitMessage(c.Conn, msg, hub)
+		HandleSubmitMessage(c, msg, hub)
 	case "list_chats":
 		HandleListChats(c.Conn, msg, hub)
 	default:
