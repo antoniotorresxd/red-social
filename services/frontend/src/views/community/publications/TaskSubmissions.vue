@@ -118,7 +118,6 @@ export default {
                 this.task = taskRes.data.data
 
                 const { data } = await axios.get(`${api.publication.publish}${this.taskId}/submissions/`)
-                console.log(data)
                 this.submissions = data.data || []
             } catch (e) {
                 this.submissions = []

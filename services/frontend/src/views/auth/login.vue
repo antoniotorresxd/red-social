@@ -129,7 +129,6 @@ export default {
         );
 
         if (data.status_code === 200) {
-          console.log(data.data)
           const { access, refresh, user_name, user_id, email } = data.data;
           localStorage.setItem("access", access);
           localStorage.setItem("refresh", refresh);
