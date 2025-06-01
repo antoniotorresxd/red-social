@@ -12,6 +12,7 @@ const apiUrl = {
       "refresh"  : baseURL + "/microservice-users/token/refresh/",
       "user"     : baseURL + "/microservice-users/",
       "reset_password" : baseURL + "/microservice-users/reset-password/",
+      "find_by_email"  : baseURL + "/microservice-users/find-by-email/",
     },
     
     community: {
@@ -28,7 +29,7 @@ const apiUrl = {
     },
 
     chat: {
-      "ws_chat": "ws://192.168.100.17/ws/chat/"
+      "ws_chat": "ws://localhost/ws/chat/"
     }
 
 }

@@ -129,10 +129,12 @@ export default {
         );
 
         if (data.status_code === 200) {
-          const { access, refresh, user_name, user_id } = data.data;
+          console.log(data.data)
+          const { access, refresh, user_name, user_id, email } = data.data;
           localStorage.setItem("access", access);
           localStorage.setItem("refresh", refresh);
           localStorage.setItem("user_name", user_name);
+          localStorage.setItem("user_email", email);
           localStorage.setItem("user_id", user_id);
           this.$router.push({ name: "default" });
         } else {

@@ -21,3 +21,7 @@ Community:
 
 rabbit
 
+
+usuarios:
+
+    agregart metodo de buscar por email 

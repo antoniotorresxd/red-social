@@ -115,7 +115,7 @@ services:
       - ./services/chat:/app 
     working_dir: /app
     expose:
-      - "8004"
+       - "8004:8004"
     networks:
       - backend
     depends_on:

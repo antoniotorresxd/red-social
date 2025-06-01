@@ -33,6 +33,6 @@ func Connect() *mongo.Database {
         log.Fatalf("no se pudo hacer ping a Mongo: %v", err)
     }
 
-    log.Println("✅ Conectado a MongoDB:", uri)
+    log.Println("Conectado a MongoDB:", uri)
     return client.Database(dbName)
 }

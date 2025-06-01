@@ -69,7 +69,7 @@ class UserViewSet(viewsets.GenericViewSet):
             instance = get_object_or_404(UserModel, id=pk)
             serializer = self.serializer_class(instance)
             return self.handle_message_response(
-                message='User found',
+                message='Usuario no encontrado',
                 status_code=status.HTTP_200_OK,
                 data=serializer.data,
             )
@@ -79,6 +79,33 @@ class UserViewSet(viewsets.GenericViewSet):
                 message=str(e),
                 status_code=status.HTTP_400_BAD_REQUEST,
                 data=[],
+            )
+            
+    @action(detail=False, methods=['get'], url_path='find-by-email')
+    def find_by_email(self, request):
+        email = request.query_params.get('email', '').strip()
+
+        if not email:
+            return self.handle_message_response(
+                message="El parámetro 'email' es obligatorio.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data=[]
+            )
+
+        try:
+            user = get_object_or_404(UserModel, email=email)
+            serializer = self.serializer_class(user)
+            return self.handle_message_response(
+                message="Usuario encontrado",
+                status_code=status.HTTP_200_OK,
+                data=serializer.data
+            )
+
+        except Exception as e:
+            return self.handle_message_response(
+                message=f"Error al buscar usuario: {str(e)}",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data=[]
             )
 
     @action(
@@ -179,6 +206,7 @@ class UserViewSet(viewsets.GenericViewSet):
             'refresh': refresh_str,
             'user_name': user.name,
             'user_id': user.id,
+            'email': user.email,
         }
 
         return self.handle_message_response(

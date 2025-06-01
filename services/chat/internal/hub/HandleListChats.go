@@ -1,53 +1,67 @@
 package hub
 
 import (
-	"context"
-	"encoding/json"
+    "context"
+    "encoding/json"
+    "log"
 
-	"github.com/antoniotorresxd/chat/internal/models"
-	"github.com/gorilla/websocket"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+    "github.com/antoniotorresxd/chat/internal/models"
+    "github.com/gorilla/websocket"
+    "go.mongodb.org/mongo-driver/bson"
+    "github.com/antoniotorresxd/chat/internal/utils"
 )
 
 func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
-	type Payload struct {
-		Event string `json:"event"`
-		User  string `json:"user"` // ObjectID string
-	}
-	var data Payload
-	if err := json.Unmarshal(msgBytes, &data); err != nil {
-		sendError(conn, "Payload inválido para list_chats")
-		return
-	}
-	userObjID, err := primitive.ObjectIDFromHex(data.User)
-	if err != nil {
-		sendError(conn, "UserID inválido")
-		return
-	}
+    type Payload struct {
+        Event string `json:"event"`
+        User  string `json:"user"` // Numeric ID como string
+    }
 
-	cursor, err := hub.roomsColl.Find(context.Background(), bson.M{"participants": userObjID})
-	if err != nil {
-		sendError(conn, "Error al buscar salas")
-		return
-	}
-	defer cursor.Close(context.Background())
+    var data Payload
+    if err := json.Unmarshal(msgBytes, &data); err != nil {
+        sendError(conn, "Payload inválido para list_chats")
+        return
+    }
 
-	var rooms []models.ChatRoom
-	for cursor.Next(context.Background()) {
-		var r models.ChatRoom
-		if err := cursor.Decode(&r); err == nil {
-			rooms = append(rooms, r)
-		}
-	}
+    userObjID, err := utils.GenerateObjectIDFromNumericID(data.User)
+    if err != nil {
+        sendError(conn, "ID de usuario inválido")
+        return
+    }
 
-	if len(rooms) > 10 {
-		rooms = rooms[len(rooms)-10:]
-	}
+    // Busca los chats donde el usuario es participante
+    filter := bson.M{"participants.object_id": userObjID}
+    cursor, err := hub.roomsColl.Find(context.Background(), filter)
+    if err != nil {
+        sendError(conn, "No se pudieron obtener los chats")
+        return
+    }
+    defer cursor.Close(context.Background())
 
-	resp := map[string]interface{}{
-		"event": "chats_list",
-		"chats": rooms,
-	}
-	_ = conn.WriteJSON(resp)
+    var chats []models.ChatRoom
+    if err := cursor.All(context.Background(), &chats); err != nil {
+        sendError(conn, "Error al leer datos de chats")
+        return
+    }
+
+    // Construye la respuesta usando los emails guardados
+    var responseChats []map[string]interface{}
+    for _, chat := range chats {
+        var participants []string
+        for _, p := range chat.Participants {
+            participants = append(participants, p.Email)
+        }
+
+        responseChats = append(responseChats, map[string]interface{}{
+            "_id":          chat.ID.Hex(),
+            "participants": participants,
+        })
+    }
+
+    resp := map[string]interface{}{
+        "event": "chats_list",
+        "chats": responseChats,
+    }
+
+    _ = conn.WriteJSON(resp)
 }

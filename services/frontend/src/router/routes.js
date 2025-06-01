@@ -83,18 +83,6 @@ export default [
     name: "chat",
     meta: { title: "Chat", authRequired: true },
     component: () => import("../views/chat/starter.vue"),
-    children: [
-      // {
-      //   path: "/mi-profile",
-      //   name: "user.profile",
-      //   component: () => import("../views/account/pages/mi-profile.vue")
-      // },
-      // {
-      //   path: "/reset-password",
-      //   name: "user.reset-password",
-      //   component: () => import("../views/account/pages/reset-password.vue")
-      // },
-    ]
   },
 
 ];
