@@ -15,7 +15,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['red-social.up.railway.app']
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
