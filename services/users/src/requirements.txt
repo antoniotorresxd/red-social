@@ -7,3 +7,4 @@ gunicorn
 djangorestframework
 django-filter
 djangorestframework-simplejwt
+dj-database-url
