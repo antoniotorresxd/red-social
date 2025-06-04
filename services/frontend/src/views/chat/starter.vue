@@ -347,4 +347,10 @@ scrollToBottom(force = false) {
 .chat-leftsidebar .dropdown-menu {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
+
+.chat-wrapper {
+  position: relative;
+  min-height: calc(100vh - 56px);
+  padding-top: 56px; 
+}
 </style>
