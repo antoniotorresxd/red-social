@@ -18,10 +18,17 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" for host in ALLOWED_HOSTS
-] + ['https://red-social.up.railway.app']
+]
 
 CORS_ALLOWED_ORIGINS = [
     f"https://{host}" for host in ALLOWED_HOSTS
-] + ['https://red-social.up.railway.app']
+]
 
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
+
+#  STATICS 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  BASE_DIR / 'media'
