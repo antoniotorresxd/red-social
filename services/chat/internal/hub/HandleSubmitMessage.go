@@ -82,9 +82,7 @@ func handleSubmitMessage(client *Client, msgBytes []byte, hub *Hub) {
 	}
 
 	for c := range hub.Clients {
-		// log.Printf("👤 Cliente conectado: %p en RoomID=%s", c, c.RoomID)
 		if c.RoomID == data.RoomID {
-			// log.Println("✅ Mensaje enviado a cliente en la sala")
 			c.Send <- msgBytesOut
 		}
 	}

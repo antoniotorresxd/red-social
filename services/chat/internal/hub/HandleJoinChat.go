@@ -30,17 +30,14 @@ func handleJoinChat(client *Client, msgBytes []byte, hub *Hub) {
 		return
 	}
 
-	// Verifica que el chat exista y recupera la lista de participantes
 	var room models.ChatRoom
 	if err := hub.roomsColl.FindOne(context.Background(), bson.M{"_id": roomObjID}).Decode(&room); err != nil {
 		sendError(client.Conn, "Sala no encontrada")
 		return
 	}
 
-	// ✅ Asignar RoomID al cliente
 	client.RoomID = data.RoomID
 
-	// 🔁 Cargar los últimos 10 mensajes
 	findOptions := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}).SetLimit(100)
 	cursor, err := hub.msgsColl.Find(context.Background(), bson.M{"room_id": roomObjID}, findOptions)
 	if err != nil {
@@ -57,12 +54,10 @@ func handleJoinChat(client *Client, msgBytes []byte, hub *Hub) {
 		}
 	}
 
-	// Invertir para mostrar del más antiguo al más reciente
 	for i, j := 0, len(messages)-1; i < j; i, j = i+1, j-1 {
 		messages[i], messages[j] = messages[j], messages[i]
 	}
 
-	// ✅ Formatear los mensajes incluyendo el sender_id original (numérico)
 	var formattedMessages []map[string]interface{}
 	for _, m := range messages {
 		senderNumericID := ""
@@ -81,7 +76,6 @@ func handleJoinChat(client *Client, msgBytes []byte, hub *Hub) {
 		})
 	}
 
-	// Enviar historial
 	resp := map[string]interface{}{
 		"event":    "chat_history",
 		"room_id":  data.RoomID,

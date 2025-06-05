@@ -13,7 +13,7 @@ import (
 func handleListChats(conn *websocket.Conn, msgBytes []byte, hub *Hub) {
     type Payload struct {
         Event string `json:"event"`
-        User  string `json:"user"` // ID numérico como string
+        User  string `json:"user"`
     }
 
     var data Payload

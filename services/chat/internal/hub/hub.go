@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Hub es responsable solo de gestionar clientes y el broadcast de mensajes
+// gestionar clientes y el broadcast de mensajes
 type Hub struct {
 	Clients    map[*Client]bool
 	Broadcast  chan []byte
@@ -16,10 +16,10 @@ type Hub struct {
 	roomsColl *mongo.Collection
 	msgsColl  *mongo.Collection
 
-	mu sync.Mutex // Para proteger el acceso a Clients si es necesario
+	mu sync.Mutex
 }
 
-// NewHub inicializa el Hub
+// NewHub 
 func NewHub(roomsColl, msgsColl *mongo.Collection) *Hub {
 	return &Hub{
 		Clients:    make(map[*Client]bool),

@@ -76,7 +76,7 @@ func DispatchEvent(c *Client, msg []byte, hub *Hub) {
 	case "create_chat":
 		HandleCreateChat(c.Conn, msg, hub)
 	case "join_chat":
-		HandleJoinChat(c, msg, hub) // <- nota: pasamos el client
+		HandleJoinChat(c, msg, hub)
 	case "submit_message":
 		HandleSubmitMessage(c, msg, hub)
 	case "list_chats":

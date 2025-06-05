@@ -6,7 +6,7 @@ import (
     "io/ioutil"
     "net/http"
     "strings"
-    "log"
+    "os"
 )
 
 type UserEmail struct {
@@ -15,10 +15,9 @@ type UserEmail struct {
 }
 
 func GetEmailsForUsers(ids []string, token string) (map[string]string, error) {
+    host := os.Getenv("GATEWAY_HOST")
     idsParam := strings.Join(ids, ",")
-    url := fmt.Sprintf("http://gateway/microservice-users/?ids=%s", idsParam)
-    log.Println("URL llamada:", url)
-    log.Println("Token enviado:", token)
+    url := fmt.Sprintf("http://%s/?ids=%s", gatewayHost, idsParam)
 
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
@@ -38,7 +37,6 @@ func GetEmailsForUsers(ids []string, token string) (map[string]string, error) {
     if err != nil {
         return nil, err
     }
-    log.Println("Respuesta HTTP:", string(body))
 
     if resp.StatusCode != 200 {
         return nil, fmt.Errorf("HTTP error: %d, respuesta: %s", resp.StatusCode, string(body))
@@ -56,7 +54,6 @@ func GetEmailsForUsers(ids []string, token string) (map[string]string, error) {
         result[fmt.Sprintf("%v", u.ID)] = u.Email
     }
 
-    log.Println(result)
     return result, nil
 }
 
