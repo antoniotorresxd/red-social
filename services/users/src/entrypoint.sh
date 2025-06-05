@@ -1,6 +1,7 @@
 #!/bin/sh
 
 echo 'Applying migrations...'
+python manage.py makemigrations --settings=config.settings.production
 python manage.py migrate --settings=config.settings.production
 
 echo 'Running server...'
