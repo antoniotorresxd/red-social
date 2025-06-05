@@ -2,7 +2,7 @@
 FROM nginx:stable-alpine
 
 # Elimina la configuración por defecto y copia la tuya
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY prod.conf /etc/nginx/conf.d/default.conf
 
 # Expone el puerto 80
 EXPOSE 80
