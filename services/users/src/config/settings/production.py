@@ -25,3 +25,10 @@ CORS_ALLOWED_ORIGINS = [
 ] + ['https://red-social.up.railway.app']
 
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
+
+#  STATICS 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  BASE_DIR / 'media'
