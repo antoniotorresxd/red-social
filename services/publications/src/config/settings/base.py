@@ -19,7 +19,11 @@ LOCAL_APPS = [
 ]
 
 THIRD_APPS = [
-
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'django_filters',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS

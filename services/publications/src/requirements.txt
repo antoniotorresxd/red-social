@@ -1,8 +1,11 @@
 django
+pillow
 psycopg2-binary
 python-dotenv
+django-cors-headers
 gunicorn
 djangorestframework
+djangorestframework-simplejwt
 django-filter
 requests
 dj-database-url
