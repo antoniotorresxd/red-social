@@ -112,7 +112,7 @@ services:
       dockerfile: Dockerfile
     working_dir: /app
     expose:
-      - "5173"
+      - "80"
     networks:
       - backend
 
