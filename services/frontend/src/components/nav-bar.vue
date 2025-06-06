@@ -184,6 +184,8 @@ export default {
         }
       } catch (err) {
         console.error(err?.response?.data?.message || err)
+        localStorage.clear()
+        window.location.href = '/login'
       }
     }
   },
