@@ -1,8 +1,9 @@
 // Router api
 import axios from 'axios';
 
-const baseURL = "https://apigateway-mg13.onrender.com"
-const wssURL = "ws://services-chat-4he7.onrender.com/ws/chat/" 
+const host = "apigateway-mg13.onrender.com"
+const baseURL = `https://${host}`
+const wssURL = `ws://${host}` 
 
 axios.defaults.baseURL = baseURL;
 
@@ -31,7 +32,7 @@ const apiUrl = {
     },
 
     chat: {
-      "ws_chat": wssURL
+      "ws_chat": wssURL + "/ws/chat/",
     }
 
 }
