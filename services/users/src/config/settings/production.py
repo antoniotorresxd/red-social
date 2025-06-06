@@ -14,17 +14,17 @@ DATABASES = {
 }
 
 # CORS DjangoRest
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     f"https://{host}" for host in ALLOWED_HOSTS
+# ]
 
-CORS_ALLOWED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS
-]
+# CORS_ALLOWED_ORIGINS = [
+#     f"https://{host}" for host in ALLOWED_HOSTS
+# ]
 
-CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
+# CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
 
 #  STATICS 
 STATIC_URL = '/static/'
