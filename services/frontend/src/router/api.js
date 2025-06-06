@@ -1,7 +1,7 @@
 // Router api
 import axios from 'axios';
 
-const baseURL = process.env.VUE_APP_URL
+const baseURL = "https://apigateway-pvgu.onrender.com"
 axios.defaults.baseURL = baseURL;
 
 const apiUrl = {
