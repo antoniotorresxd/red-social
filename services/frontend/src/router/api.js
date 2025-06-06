@@ -1,7 +1,7 @@
 // Router api
 import axios from 'axios';
 
-const baseURL = "https://apigateway-pvgu.onrender.com"
+const baseURL = "https://apigateway-mg13.onrender.com"
 const wssURL = "ws://localhost/ws/chat/"
 
 axios.defaults.baseURL = baseURL;
