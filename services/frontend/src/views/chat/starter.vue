@@ -1,356 +1,852 @@
 <template>
   <Layout>
     <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
-
       <!-- Sidebar de chats -->
-      <div class="chat-leftsidebar border d-flex flex-column">
+      <div class="chat-leftsidebar border">
         <div class="px-4 pt-4 mb-4">
           <div class="d-flex align-items-start">
-            <h5 class="flex-grow-1 mb-4">Chats</h5>
-            <BButton variant="soft-primary" size="sm" @click="openCreateChat">
-              <i class="ri-add-line align-bottom" />
-            </BButton>
-          </div>
-          <div class="search-box mt-2">
-            <input v-model="searchQuery" type="text" class="form-control bg-light border-light"
-              placeholder="Buscar..." />
-            <i class="ri-search-2-line search-icon"></i>
-          </div>
-        </div>
-
-        <simplebar class="chat-room-list flex-fill" data-simplebar>
-          <ul class="list-unstyled chat-list chat-user-list">
-            <li v-for="chat in filteredChats" :key="chat._id" @click="selectChat(chat)"
-              :class="{ active: activeChat && activeChat._id === chat._id }" class="py-2 px-3 hover-bg rounded mb-1">
-              <div class="d-flex align-items-center">
-                <div class="flex-shrink-0 chat-user-img online me-2">
-                  <div class="avatar-xxs"></div>
-                </div>
-                <p class="mb-0 text-truncate flex-grow-1">
-                  {{ getChatName(chat) }}
-                </p>
-              </div>
-            </li>
-          </ul>
-        </simplebar>
-      </div>
-
-      <!-- Área de chat -->
-      <div class="user-chat w-100 d-flex flex-column p-4">
-
-        <!-- Header móvil -->
-        <div class="d-flex align-items-center mb-4 d-lg-none">
-          <BLink href="javascript:void(0)" class="user-chat-remove fs-18 p-1 me-3">
-            <i class="ri-arrow-left-s-line align-bottom"></i>
-          </BLink>
-          <h5 class="mb-0">Chats</h5>
-        </div>
-
-        <!-- Formulario de crear chat -->
-        <div v-if="showCreateChat" class="mt-4 d-flex">
-          <div class="card shadow-sm" style="min-width: 330px; max-width: 350px;">
-            <div class="card-body">
-              <h5 class="card-title text-center mb-3">Agregar chat</h5>
-              <div class="mb-3">
-                <label class="form-label">Correo institucional</label>
-                <input v-model="chatEmail" type="email" class="form-control" placeholder="usuario@alumno.ipn.mx" />
-              </div>
-              <div class="d-flex justify-content-end">
-                <BButton variant="primary" size="sm" class="ms-2" @click="handleCreateChat">
-                  Buscar
+            <div class="flex-grow-1">
+              <h5 class="mb-4">Chats</h5>
+            </div>
+            <div class="flex-shrink-0">
+              <div v-b-tooltip.hover title="Agregar chat">
+                <BButton
+                  type="button"
+                  variant="soft-primary"
+                  size="sm"
+                  @click="openCreateChat"
+                >
+                  <i class="ri-add-line align-bottom"></i>
                 </BButton>
               </div>
             </div>
           </div>
+          <div class="search-box">
+            <input
+              type="text"
+              v-model="searchQuery"
+              class="form-control bg-light border-light"
+              placeholder="Search here..."
+            />
+            <i class="ri-search-2-line search-icon"></i>
+          </div>
         </div>
 
-        <!-- Área de mensajes -->
-        <template v-else-if="activeChat">
-          <simplebar ref="messagesArea" class="messages-area flex-grow-1" data-simplebar>
+        <simplebar class="chat-room-list" data-simplebar>
+          <div class="chat-message-list">
+            <SimpleBar class="list-unstyled chat-list chat-user-list">
+              <li
+                v-for="chat in filteredChats"
+                :key="chat._id"
+                @click="selectChat(chat)"
+                :class="{ active: activeChat && activeChat._id === chat._id }"
+              >
+                <BLink href="javascript: void(0);">
+                  <div class="d-flex align-items-center">
+                    <div
+                      class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0"
+                    >
+                      <div class="avatar-xxs">
+                        <div
+                          class="avatar-title rounded-circle bg-primary userprofile"
+                        >
+                          {{ getChatName(chat).charAt(0).toUpperCase() }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                      <p class="text-truncate mb-1">{{ getChatName(chat) }}</p>
+                    </div>
+                  </div>
+                </BLink>
+              </li>
+            </SimpleBar>
+          </div>
+        </simplebar>
+      </div>
 
-            <!-- <div class="messages-area flex-grow-1 overflow-auto"> -->
-            <div v-for="msg in messages" :key="msg._id" class="mb-3"
-              :class="msg.sender_id === userId ? 'text-end' : 'text-start'">
-              <div :class="[
-                'd-inline-block px-3 py-2 rounded',
-                msg.sender_id === userId ? 'bg-primary text-white' : 'bg-light text-dark'
-              ]">
-                {{ msg.message }}
+      <!-- Área de chat principal -->
+      <div
+        style="background: #fff"
+        class="user-chat w-100 overflow-hidden border"
+        :class="{ 'user-chat-show': activeChat }"
+      >
+        <div class="chat-content d-lg-flex">
+          <div class="w-100 overflow-hidden position-relative">
+            <!-- Formulario crear chat -->
+            <div
+              v-if="showCreateChat"
+              class="d-flex justify-content-center align-items-start pt-5"
+            >
+              <div class="card shadow-sm" style="width: 400px">
+                <div class="card-body">
+                  <h5 class="card-title text-center mb-4">Agregar chat</h5>
+                  <div class="mb-3">
+                    <label class="form-label">Correo institucional</label>
+                    <input
+                      v-model="chatEmail"
+                      type="email"
+                      class="form-control"
+                      placeholder="usuario@alumno.ipn.mx"
+                    />
+                  </div>
+                  <div class="d-flex justify-content-center">
+                    <BButton variant="primary" @click="handleCreateChat">
+                      Buscar
+                    </BButton>
+                  </div>
+                </div>
               </div>
-              <small class="d-block text-muted">{{ formatTimestamp(msg.timestamp) }}</small>
             </div>
-            <!-- </div> -->
-            <div ref="bottomAnchor"></div>
-          </simplebar>
 
-          <div class="chat-input bg-white border-top pt-3 pb-3 mb-5">
-            <div class="d-flex">
-              <input v-model="newMessage" type="text" class="form-control me-2" placeholder="Escribe un mensaje..."
-                @keyup.enter="handleSubmitMessage" />
-              <BButton variant="primary" size="sm" @click="handleSubmitMessage">
-                Enviar
-              </BButton>
+            <!-- Chat activo -->
+            <div v-else-if="activeChat" class="position-relative">
+              <div class="p-3 user-chat-topbar">
+                <BRow class="align-items-center">
+                  <BCol sm="4" cols="8">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-shrink-0 d-block d-lg-none me-3">
+                        <BLink
+                          href="javascript: void(0);"
+                          class="user-chat-remove fs-18 p-1"
+                          @click="deselectChat"
+                        >
+                          <i class="ri-arrow-left-s-line align-bottom"></i>
+                        </BLink>
+                      </div>
+                      <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex align-items-center">
+                          <div
+                            class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0"
+                          >
+                            <div
+                              class="avatar-xs rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                            >
+                              <span class="text-white">{{
+                                username.charAt(0).toUpperCase()
+                              }}</span>
+                            </div>
+                            <span class="user-status"></span>
+                          </div>
+                          <div class="flex-grow-1 overflow-hidden">
+                            <h5 class="text-truncate mb-0 fs-16">
+                              <BLink
+                                class="text-reset username"
+                                @click="showOffcanvas = !showOffcanvas"
+                              >
+                                {{ username }}
+                              </BLink>
+                            </h5>
+                            <p
+                              class="text-truncate text-muted fs-14 mb-0 userStatus"
+                            >
+                              <small></small>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </BCol>
+                  <BCol sm="8" cols="4"> </BCol>
+                </BRow>
+              </div>
+
+              <div class="position-relative" id="users-chat">
+                <simplebar
+                  class="chat-conversation p-3 p-lg-4"
+                  id="chat-conversation"
+                  data-simplebar
+                  ref="chatContainer"
+                >
+                  <ul class="list-unstyled chat-conversation-list">
+                    <li
+                      v-for="data of resultQuery"
+                      :key="data._id"
+                      :class="{
+                        right: `${data.align}` === 'right',
+                        left: `${data.align}` !== 'right',
+                      }"
+                      class="chat-list"
+                    >
+                      <div class="conversation-list">
+                        <div class="chat-avatar" v-if="data.align !== 'right'">
+                          <div
+                            class="avatar-xs rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                          >
+                            <span class="text-white">{{
+                              data.name
+                                ? data.name.charAt(0).toUpperCase()
+                                : "U"
+                            }}</span>
+                          </div>
+                        </div>
+                        <div class="user-chat-content pt-1">
+                          <div class="ctext-wrap">
+                            <div class="ctext-wrap-content">
+                              <p class="mb-0 ctext-content">
+                                {{ data.message }}
+                              </p>
+                            </div>
+                          </div>
+                          <div class="conversation-name">
+                            <small class="text-muted time">{{
+                              data.time
+                            }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </simplebar>
+
+                <div
+                  class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show"
+                  id="copyClipBoard"
+                  role="alert"
+                  style="display: none"
+                >
+                  Message copied
+                </div>
+              </div>
+
+              <div class="chat-input-section p-3 p-lg-4">
+                <form @submit.prevent="formSubmit">
+                  <BRow class="g-0 align-items-center">
+                    <BCol cols="auto">
+                      <div class="chat-input-links me-2">
+                        <div class="links-list-item"></div>
+                      </div>
+                    </BCol>
+                    <BCol>
+                      <div class="chat-input-feedback">
+                        Please Enter a Message
+                      </div>
+
+                      <input
+                        type="text"
+                        v-model="form.message"
+                        class="form-control chat-input bg-light border-light fs-13"
+                        placeholder="Enviar mensaje..."
+                        :class="{
+                          'is-invalid': submitted && v$.form.message.$error,
+                        }"
+                      />
+                      <div
+                        v-if="submitted && v$.form.message.$error"
+                        class="invalid-feedback"
+                      >
+                        <span v-if="v$.form.message.required.$message">
+                          {{ v$.form.message.required.$message }}
+                        </span>
+                      </div>
+                    </BCol>
+                    <BCol cols="auto">
+                      <div class="chat-input-links ms-2">
+                        <div class="links-list-item">
+                          <BButton
+                            variant="success"
+                            type="submit"
+                            class="chat-send fs-13"
+                          >
+                            <i class="ri-send-plane-2-fill align-bottom"></i>
+                          </BButton>
+                        </div>
+                      </div>
+                    </BCol>
+                  </BRow>
+                </form>
+              </div>
+
+              <div class="replyCard">
+                <BCard no-body class="mb-0">
+                  <BCardBody class="py-3">
+                    <div
+                      class="replymessage-block mb-0 d-flex align-items-start"
+                    >
+                      <div class="flex-grow-1">
+                        <h5 class="conversation-name"></h5>
+                        <p class="mb-0"></p>
+                      </div>
+                      <div class="flex-shrink-0">
+                        <BButton
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          id="close_toggle"
+                          class="mt-n2 me-n3 fs-18"
+                        >
+                          <i class="bx bx-x align-middle"></i>
+                        </BButton>
+                      </div>
+                    </div>
+                  </BCardBody>
+                </BCard>
+              </div>
+            </div>
+
+            <!-- Estado por defecto -->
+            <div
+              v-else
+              class="d-flex justify-content-center align-items-center h-100"
+            >
+              <div class="text-center">
+                <!-- <h5 class="text-muted">Selecciona un chat para comenzar</h5> -->
+              </div>
             </div>
           </div>
-        </template>
-
-        <!-- Espacio vacío si no hay chat activo -->
-        <div v-else class="flex-grow-1"></div>
+        </div>
       </div>
     </div>
+
+    <!-- Offcanvas de información del usuario -->
+    <BOffcanvas
+      placement="end"
+      v-model="showOffcanvas"
+      body-class="border-0 p-0 overflow-hidden"
+      header-class="border-bottom"
+    >
+      <div class="offcanvas-body profile-offcanvas p-0">
+        <div class="team-cover">
+          <img src="@/assets/images/small/img-9.jpg" alt="" class="img-fluid" />
+        </div>
+        <div class="p-1 pb-4 pt-0">
+          <div class="team-settings">
+            <div class="row g-0">
+              <div class="col"></div>
+              <div class="col-auto">
+                <div class="user-chat-nav d-flex">
+                  <button
+                    type="button"
+                    class="btn nav-btn favourite-btn active"
+                  >
+                    <i class="ri-star-fill"></i>
+                  </button>
+
+                  <div class="dropdown">
+                    <BLink
+                      class="btn nav-btn"
+                      href="javascript:void(0);"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="ri-more-2-fill"></i>
+                    </BLink>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <BLink class="dropdown-item" href="javascript:void(0);"
+                          ><i
+                            class="ri-inbox-archive-line align-bottom text-muted me-2"
+                          ></i
+                          >Archive</BLink
+                        >
+                      </li>
+                      <li>
+                        <BLink class="dropdown-item" href="javascript:void(0);"
+                          ><i
+                            class="ri-mic-off-line align-bottom text-muted me-2"
+                          ></i
+                          >Muted</BLink
+                        >
+                      </li>
+                      <li>
+                        <BLink class="dropdown-item" href="javascript:void(0);"
+                          ><i
+                            class="ri-delete-bin-5-line align-bottom text-muted me-2"
+                          ></i
+                          >Delete</BLink
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-3 text-center">
+          <div
+            class="avatar-lg img-thumbnail rounded-circle mx-auto profile-img bg-primary d-flex align-items-center justify-content-center"
+          >
+            <span class="text-white fs-4">{{
+              username.charAt(0).toUpperCase()
+            }}</span>
+          </div>
+          <div class="mt-3">
+            <h5 class="fs-16 mb-1">
+              <BLink href="javascript:void(0);" class="link-primary username">
+                {{ username }}</BLink
+              >
+            </h5>
+            <p class="text-muted">
+              <i
+                class="ri-checkbox-blank-circle-fill me-1 align-bottom text-success"
+              ></i
+              >Online
+            </p>
+          </div>
+
+          <div class="d-flex gap-2 justify-content-center">
+            <button
+              type="button"
+              class="btn avatar-xs p-0"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Message"
+            >
+              <span class="avatar-title rounded bg-light text-body">
+                <i class="ri-question-answer-line"></i>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="btn avatar-xs p-0"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Favourite"
+            >
+              <span class="avatar-title rounded bg-light text-body">
+                <i class="ri-star-line"></i>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="btn avatar-xs p-0"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Phone"
+            >
+              <span class="avatar-title rounded bg-light text-body">
+                <i class="ri-phone-line"></i>
+              </span>
+            </button>
+
+            <div class="dropdown">
+              <button
+                class="btn avatar-xs p-0"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <span class="avatar-title bg-light text-body rounded">
+                  <i class="ri-more-fill"></i>
+                </span>
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <BLink class="dropdown-item" href="javascript:void(0);"
+                    ><i
+                      class="ri-inbox-archive-line align-bottom text-muted me-2"
+                    ></i
+                    >Archive</BLink
+                  >
+                </li>
+                <li>
+                  <BLink class="dropdown-item" href="javascript:void(0);"
+                    ><i class="ri-mic-off-line align-bottom text-muted me-2"></i
+                    >Muted</BLink
+                  >
+                </li>
+                <li>
+                  <BLink class="dropdown-item" href="javascript:void(0);"
+                    ><i
+                      class="ri-delete-bin-5-line align-bottom text-muted me-2"
+                    ></i
+                    >Delete</BLink
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-top border-top-dashed p-3">
+          <h5 class="fs-15 mb-3">Personal Details</h5>
+          <div class="mb-3">
+            <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Number</p>
+            <h6>+(256) 2451 8974</h6>
+          </div>
+          <div class="mb-3">
+            <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Email</p>
+            <h6>{{ userEmail }}</h6>
+          </div>
+          <div>
+            <p class="text-muted text-uppercase fw-medium fs-12 mb-1">
+              Location
+            </p>
+            <h6 class="mb-0">California, USA</h6>
+          </div>
+        </div>
+      </div>
+    </BOffcanvas>
   </Layout>
 </template>
 
 <script>
-import simplebar from 'simplebar-vue'
-import Layout from '@/layouts/main.vue'
-import api from '@/router/api'
-import axios from 'axios'
+import simplebar from "simplebar-vue";
+
+import { required, helpers } from "@vuelidate/validators";
+import useVuelidate from "@vuelidate/core";
+
+import Layout from "@/layouts/main.vue";
+import api from "@/router/api";
+import axios from "axios";
 
 export default {
-  components: { Layout, simplebar },
+  setup() {
+    return {
+      v$: useVuelidate(),
+    };
+  },
+
   data() {
     return {
+      // WebSocket y datos de chat
       ws: null,
       chatList: [],
       activeChat: null,
       messages: [],
-      newMessage: '',
-      chatEmail: '',
-      showCreateChat: false,
-      searchQuery: '',
       wsReady: false,
-      userId: localStorage.getItem('user_id'),
-      userEmail: localStorage.getItem('user_email'),
-    }
+      userId: localStorage.getItem("user_id"),
+      userEmail: localStorage.getItem("user_email"),
+
+      // UI estado
+      searchQuery: "",
+      showOffcanvas: false,
+      showCreateChat: false,
+      chatEmail: "",
+      submitted: false,
+      form: {
+        message: "",
+      },
+      username: "Steven Franklin",
+      profile: require("@/assets/images/users/avatar-2.jpg"),
+    };
   },
+
+  components: {
+    Layout,
+    simplebar,
+  },
+
+  validations: {
+    form: {
+      message: {
+        required: helpers.withMessage("Message is required", required),
+      },
+    },
+  },
+
   computed: {
     filteredChats() {
-      const query = this.searchQuery.toLowerCase()
+      const query = this.searchQuery.toLowerCase();
       return query
-        ? this.chatList.filter(c => this.getChatName(c).toLowerCase().includes(query))
-        : this.chatList
-    }
+        ? this.chatList.filter((c) =>
+            this.getChatName(c).toLowerCase().includes(query)
+          )
+        : this.chatList;
+    },
+
+    resultQuery() {
+      return this.messages;
+    },
   },
+
   methods: {
-    openCreateChat() {
-      this.showCreateChat = true
-      if (window.innerWidth < 992) {
-        document.querySelector('.user-chat').classList.add('user-chat-show')
-      }
-    },
-    selectChat(chat) {
-      this.activeChat = chat
-      this.messages = [] // limpiar mensajes actuales
-      this.sendWebSocketMessage({
-        event: 'join_chat',
-        room_id: chat._id,
-      })
-      this.showCreateChat = false
-      if (window.innerWidth < 992) {
-        document.querySelector('.user-chat').classList.add('user-chat-show')
-      }
-    },
-    formatTimestamp(ts) {
-      return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    },
-    async getUserIdByEmail(email) {
+    // Métodos de WebSocket
+    initializeWebSocket() {
       try {
-        const { data } = await axios.get(api.users.find_by_email, { params: { email } })
-        return data.data?.id || null
-      } catch {
-        return null
+        this.ws = new WebSocket(api.chat.ws_chat);
+
+        this.ws.onopen = () => {
+          this.wsReady = true;
+          this.sendWebSocketMessage({
+            event: "list_chats",
+            user: this.userId,
+            token: localStorage.getItem("access"),
+          });
+        };
+
+        this.ws.onmessage = ({ data }) => {
+          const msg = JSON.parse(data);
+          this.handleWebSocketMessage(msg);
+        };
+
+        this.ws.onclose = () => {
+          this.wsReady = false;
+          // Intentar reconexión después de 5 segundos
+          setTimeout(this.initializeWebSocket, 5000);
+        };
+
+        this.ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          this.wsReady = false;
+        };
+      } catch (error) {
+        console.error("Error al inicializar WebSocket:", error);
+        setTimeout(this.initializeWebSocket, 5000);
       }
     },
+
+    handleWebSocketMessage(msg) {
+      switch (msg.event) {
+        case "chats_list":
+          this.chatList = msg.chats || [];
+          break;
+        case "chat_created":
+          this.chatList.unshift({
+            _id: msg.room_id,
+            participants: msg.participants,
+          });
+          this.activeChat = this.chatList[0];
+          this.showCreateChat = false;
+          break;
+        case "chat_exists":
+          this.activeChat =
+            this.chatList.find((c) => c._id === msg.room_id) || null;
+          this.showCreateChat = false;
+          break;
+        case "new_message":
+          if (this.activeChat && msg.room_id === this.activeChat._id) {
+            this.messages.push({
+              _id: Date.now().toString(),
+              sender_id: msg.sender,
+              message: msg.message,
+              timestamp: msg.timestamp,
+              align: msg.sender === this.userId ? "right" : "left",
+              name:
+                msg.sender === this.userId
+                  ? "Tú"
+                  : this.getChatName(this.activeChat),
+              time: this.formatTimestamp(msg.timestamp),
+            });
+            this.$nextTick(() => this.scrollToBottom());
+          }
+          break;
+        case "chat_history":
+          if (
+            this.activeChat &&
+            msg.room_id === this.activeChat._id &&
+            Array.isArray(msg.messages)
+          ) {
+            this.messages = msg.messages.map((m) => ({
+              _id: m._id,
+              sender_id: m.sender_id,
+              message: m.message,
+              timestamp: m.timestamp,
+              align: m.sender_id === this.userId ? "right" : "left",
+              name:
+                m.sender_id === this.userId
+                  ? "Tú"
+                  : this.getChatName(this.activeChat),
+              time: this.formatTimestamp(m.timestamp),
+            }));
+          } else {
+            this.messages = [];
+          }
+          this.$nextTick(() => this.scrollToBottom());
+          break;
+      }
+    },
+
     sendWebSocketMessage(payload) {
       if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify(payload))
+        this.ws.send(JSON.stringify(payload));
       } else {
-        alert('Conexión de chat no lista. Intenta de nuevo.')
+        console.warn("Conexión de chat no lista. Intenta de nuevo.");
+        this.initializeWebSocket();
       }
     },
+
+    async getUserIdByEmail(email) {
+      try {
+        const { data } = await axios.get(api.users.find_by_email, {
+          params: { email },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        });
+        return data.data?.id || null;
+      } catch (error) {
+        console.error("Error al buscar usuario:", error);
+        return null;
+      }
+    },
+
     async handleCreateChat() {
       if (!this.chatEmail) {
-        alert('Ingresa un correo válido')
-        return
+        alert("Ingresa un correo válido");
+        return;
       }
-      const targetUserId = await this.getUserIdByEmail(this.chatEmail)
-      if (!targetUserId) return
+
+      const targetUserId = await this.getUserIdByEmail(this.chatEmail);
+      if (!targetUserId) {
+        alert("Usuario no encontrado");
+        return;
+      }
 
       this.sendWebSocketMessage({
-        event: 'create_chat',
+        event: "create_chat",
         participants: [this.userId, targetUserId.toString()],
-        token: localStorage.getItem('access'),
-      })
+        token: localStorage.getItem("access"),
+      });
 
-      this.showCreateChat = false
-      this.chatEmail = ''
+      this.chatEmail = "";
     },
-    handleSubmitMessage() {
-      const text = this.newMessage.trim()
-      if (!text || !this.activeChat) return
+
+    // Métodos de UI
+    openCreateChat() {
+      this.showCreateChat = true;
+      this.activeChat = null;
+      this.messages = [];
+    },
+
+    selectChat(chat) {
+      this.activeChat = chat;
+      this.messages = [];
+      this.username = this.getChatName(chat);
+      this.sendWebSocketMessage({
+        event: "join_chat",
+        room_id: chat._id,
+      });
+      this.showCreateChat = false;
+    },
+
+    deselectChat() {
+      this.activeChat = null;
+      this.messages = [];
+    },
+
+    getChatName(chat) {
+      const other = (chat.participants || []).find((e) => e !== this.userEmail);
+      return other || "Chat";
+    },
+
+    formatTimestamp(ts) {
+      return new Date(ts).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+
+    scrollToBottom() {
+      this.$nextTick(() => {
+        if (!this.$refs.chatContainer) return;
+
+        try {
+          if (
+            this.$refs.chatContainer.simpleBar &&
+            this.$refs.chatContainer.simpleBar.getScrollElement
+          ) {
+            const scrollElement =
+              this.$refs.chatContainer.simpleBar.getScrollElement();
+            scrollElement.scrollTop = scrollElement.scrollHeight;
+            return;
+          }
+
+          const contentWrapper = this.$refs.chatContainer.$el?.querySelector(
+            ".simplebar-content-wrapper"
+          );
+          if (contentWrapper) {
+            contentWrapper.scrollTop = contentWrapper.scrollHeight;
+            return;
+          }
+
+          const scrollContent = this.$refs.chatContainer.$el?.querySelector(
+            ".simplebar-scroll-content"
+          );
+          if (scrollContent) {
+            scrollContent.scrollTop = scrollContent.scrollHeight;
+            return;
+          }
+
+          const rootElement =
+            this.$refs.chatContainer.$el || this.$refs.chatContainer;
+          if (rootElement) {
+            rootElement.scrollTop = rootElement.scrollHeight;
+          }
+        } catch (error) {
+          console.warn("Error al hacer scroll:", error);
+
+          const chatList = document.querySelector(".chat-conversation-list");
+          if (chatList) {
+            chatList.scrollTop = chatList.scrollHeight;
+          }
+        }
+      });
+    },
+
+    formSubmit() {
+      this.submitted = true;
+      this.v$.$touch();
+
+      if (this.v$.$invalid) {
+        return;
+      }
+
+      const message = this.form.message.trim();
+      if (!message || !this.activeChat) return;
 
       if (this.ws?.readyState !== WebSocket.OPEN) {
-        console.warn("WebSocket no está listo")
-        return
+        this.$bvToast.toast("Conexión de chat no disponible", {
+          title: "Error",
+          variant: "danger",
+          solid: true,
+        });
+        return;
       }
 
       const payload = {
-        event: 'submit_message',
+        event: "submit_message",
         room_id: this.activeChat._id,
         sender: this.userId,
-        message: text,
-      }
-      this.ws.send(JSON.stringify(payload))
-      this.newMessage = ''
+        message: message,
+      };
+
+      this.ws.send(JSON.stringify(payload));
+      this.form.message = "";
+      this.submitted = false;
+      this.scrollToBottom();
     },
-
-    initializeWebSocket() {
-      this.ws = new WebSocket(api.chat.ws_chat)
-      this.ws.onopen = () => {
-        this.wsReady = true
-        this.sendWebSocketMessage({
-          event: 'list_chats',
-          user: this.userId,
-          token: localStorage.getItem('access'),
-        })
-      }
-
-      this.ws.onmessage = ({ data }) => {
-        const msg = JSON.parse(data)
-        switch (msg.event) {
-          case 'chats_list':
-            this.chatList = msg.chats || []
-            break
-          case 'chat_created':
-            this.chatList.unshift({ _id: msg.room_id, participants: msg.participants })
-            this.activeChat = this.chatList[0]
-            break
-          case 'chat_exists':
-            this.activeChat = this.chatList.find(c => c._id === msg.room_id) || null
-            break
-          case 'new_message':
-            if (this.activeChat && msg.room_id === this.activeChat._id) {
-              this.messages.push({
-                _id: Date.now().toString(),
-                sender_id: msg.sender,
-                message: msg.message,
-                timestamp: msg.timestamp,
-              })
-              this.$nextTick(() => this.scrollToBottom(true))
-            }
-            break
-          case 'chat_history':
-            if (this.activeChat && msg.room_id === this.activeChat._id && Array.isArray(msg.messages)) {
-              console.log(msg.messages)
-              this.messages = msg.messages.map(m => ({
-                _id: m._id,
-                sender_id: m.sender_id,
-                message: m.message,
-                timestamp: m.timestamp,
-              }))
-            } else {
-              this.messages = []
-            }
-            this.$nextTick(() => this.scrollToBottom(true))
-            break
-        }
-      }
-
-      this.ws.onclose = this.ws.onerror = () => {
-        this.wsReady = false
-      }
-    },
-    getChatName(chat) {
-      const other = (chat.participants || []).find(e => e !== this.userEmail)
-      return other || 'Chat'
-    },
-scrollToBottom(force = false) {
-  const wrapper = this.$refs.messagesArea?.$el || this.$refs.messagesArea
-  const scrollEl = wrapper?.querySelector('.simplebar-content-wrapper')
-  if (!scrollEl) return
-
-  const atBottom =
-    scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight < 50
-
-  if (force || atBottom) {
-    scrollEl.scrollTop = scrollEl.scrollHeight
-  }
-}
-
-
   },
+
   mounted() {
-    document.querySelectorAll('.user-chat-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelector('.user-chat')?.classList.remove('user-chat-show')
-      })
-    })
-    this.initializeWebSocket()
+    this.initializeWebSocket();
   },
+
   beforeUnmount() {
-    this.ws?.close()
+    if (this.ws) {
+      this.ws.close();
+    }
   },
-}
+};
 </script>
 
 <style scoped>
-.chat-wrapper {
-  position: relative;
-  min-height: calc(100vh - 56px);
+.user-chat-show {
+  display: block !important;
 }
 
-.user-chat {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  height: 100%;
+.chat-user-list li.active {
+  background-color: rgba(85, 110, 230, 0.1);
 }
 
-@media (max-width: 991.98px) {
-  .user-chat {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
-    z-index: 5;
-  }
-
-  .user-chat.user-chat-show {
-    transform: translateX(0);
-  }
+.chat-conversation-list .right .conversation-list {
+  margin-right: 16px;
 }
 
-@media (min-width: 992px) {
-  .user-chat {
-    position: relative;
-    transform: none !important;
-  }
+.chat-conversation-list .left .conversation-list {
+  margin-left: 16px;
 }
 
-.messages-area {
-  flex-grow: 1;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-input {
-  flex: 0 0 auto;
-}
-
-.chat-leftsidebar .dropdown-menu {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.chat-wrapper {
-  position: relative;
-  min-height: calc(100vh - 56px);
-  padding-top: 56px; 
+.copyclipboard-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  display: none;
 }
 </style>

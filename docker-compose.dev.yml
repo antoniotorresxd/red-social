@@ -124,6 +124,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017
       - MONGO_DB=chatdb
+      - GATEWAY_HOST=192.168.100.88/microservice-users
 
   mongo_chat:
     image: mongo:5.0
@@ -149,19 +150,19 @@ services:
     networks:
       - backend
 
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: antoniotorres841@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    depends_on:
-      - db_postgres_users
-      - db_postgres_community
-      - db_postgres_publications
-    networks:
-      - backend
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: antoniotorres841@gmail.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "5050:80"
+  #   depends_on:
+  #     - db_postgres_users
+  #     - db_postgres_community
+  #     - db_postgres_publications
+  #   networks:
+  #     - backend
 
 volumes:
   pgdata_users:
