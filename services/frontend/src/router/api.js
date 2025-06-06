@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const host = "apigateway-mg13.onrender.com"
 const baseURL = `https://${host}`
-const wssURL = `ws://${host}` 
+const wssURL = `wss://${host}` 
 
 axios.defaults.baseURL = baseURL;
 
