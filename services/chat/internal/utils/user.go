@@ -17,7 +17,7 @@ type UserEmail struct {
 func GetEmailsForUsers(ids []string, token string) (map[string]string, error) {
     host := os.Getenv("GATEWAY_HOST")
     idsParam := strings.Join(ids, ",")
-    url := fmt.Sprintf("http://%s/?ids=%s", gatewayHost, idsParam)
+    url := fmt.Sprintf("http://%s/?ids=%s", host, idsParam)
 
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
