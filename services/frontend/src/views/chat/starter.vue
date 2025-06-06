@@ -69,31 +69,46 @@
       <div
         style="background: #fff"
         class="user-chat w-100 overflow-hidden border"
-        :class="{ 'user-chat-show': activeChat }"
+        :class="{ 'user-chat-show': activeChat || showCreateChat }"
       >
         <div class="chat-content d-lg-flex">
           <div class="w-100 overflow-hidden position-relative">
             <!-- Formulario crear chat -->
-            <div
-              v-if="showCreateChat"
-              class="d-flex justify-content-center align-items-start pt-5"
-            >
-              <div class="card shadow-sm" style="width: 400px">
-                <div class="card-body">
-                  <h5 class="card-title text-center mb-4">Agregar chat</h5>
-                  <div class="mb-3">
-                    <label class="form-label">Correo institucional</label>
-                    <input
-                      v-model="chatEmail"
-                      type="email"
-                      class="form-control"
-                      placeholder="usuario@alumno.ipn.mx"
-                    />
-                  </div>
-                  <div class="d-flex justify-content-center">
-                    <BButton variant="primary" @click="handleCreateChat">
-                      Buscar
-                    </BButton>
+
+            <div v-if="showCreateChat">
+              <!-- Header idéntico al de conversación -->
+              <div class="p-3 user-chat-topbar d-flex align-items-center">
+                <BLink
+                  href="javascript:void(0);"
+                  class="user-chat-remove fs-18 p-1"
+                  @click="showCreateChat = false"
+                >
+                  <i class="ri-arrow-left-s-line align-bottom"></i>
+                </BLink>
+                <h5 class="text-center flex-grow-1 mb-0">Agregar chat</h5>
+              </div>
+
+              <!-- Card de formulario, sin padding-top extra -->
+              <div class="d-flex justify-content-center align-items-start p-3">
+                <div
+                  class="card shadow-sm"
+                  style="max-width: 400px; width: 100%"
+                >
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label class="form-label">Correo institucional</label>
+                      <input
+                        v-model="chatEmail"
+                        type="email"
+                        class="form-control"
+                        placeholder="usuario@alumno.ipn.mx"
+                      />
+                    </div>
+                    <div class="d-flex justify-content-center">
+                      <BButton variant="primary" @click="handleCreateChat">
+                        Buscar
+                      </BButton>
+                    </div>
                   </div>
                 </div>
               </div>
