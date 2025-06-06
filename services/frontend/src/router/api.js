@@ -2,6 +2,8 @@
 import axios from 'axios';
 
 const baseURL = "https://apigateway-pvgu.onrender.com"
+const wssURL = "ws://localhost/ws/chat/"
+
 axios.defaults.baseURL = baseURL;
 
 const apiUrl = {
@@ -29,7 +31,7 @@ const apiUrl = {
     },
 
     chat: {
-      "ws_chat": "ws://localhost/ws/chat/"
+      "ws_chat": wssURL
     }
 
 }
