@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const baseURL = "https://apigateway-mg13.onrender.com"
-const wssURL = "ws://localhost/ws/chat/"
+const wssURL = "ws://services-chat-4he7.onrender.com/ws/chat/" 
 
 axios.defaults.baseURL = baseURL;
 
