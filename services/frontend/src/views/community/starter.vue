@@ -40,19 +40,7 @@
               :class="{ active: selectedForum && selectedForum.id === f.id }">
               <BLink href="javascript:void(0);">
                 <div class="d-flex align-items-center">
-                  <div class="flex-shrink-0 chat-user-img online align-self-center me-2">
-                    <div class="avatar-xxs" v-if="f.image">
-                      <img :src="f.image" class="rounded-circle img-fluid userprofile" />
-                    </div>
-                    <div class="avatar-xxs" v-else>
-                      <!-- <div class="avatar-title rounded-circle bg-danger userprofile">
-                        {{ f.name.charAt(0) }}
-                      </div> -->
-                      <div class="avatar-title  userprofile">
-                        <!-- {{ f.name.charAt(0) }} -->
-                      </div>
-                    </div>
-                  </div>
+
                   <div class="flex-grow-1 overflow-hidden">
                     <p class="text-truncate mb-1">{{ f.name }}</p>
                   </div>
