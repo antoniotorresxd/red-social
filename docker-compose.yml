@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  gateway:
+    image: nginx:alpine
+    container_name: api-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - users_service
+      - community_service
+      - chat_service
+      - publications_service
+      - frontend
+    networks:
+      - backend
+
+  users_service:
+    image: myacr.azurecr.io/users:latest
+    networks:
+      - backend
+
+  community_service:
+    image: myacr.azurecr.io/community:latest
+    networks:
+      - backend
+
+  publications_service:
+    image: myacr.azurecr.io/publications:latest
+    networks:
+      - backend
+
+  chat_service:
+    image: myacr.azurecr.io/chat:latest
+    networks:
+      - backend
+
+  frontend:
+    image: myacr.azurecr.io/frontend:latest
+    ports:
+      - "5173:5173"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
