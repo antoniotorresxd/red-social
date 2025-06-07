@@ -185,28 +185,6 @@ export default {
       this.$router.push({ name: "register" });
     },
   },
-  async mounted() {
-    const endpoints = [
-      api.users.user,
-      api.community.list,
-      api.publication.publish,
-      api.chat.ws_chat,
-    ];
-
-    const promesas = endpoints.map((url) =>
-      axios
-        .get(url)
-        .then((res) => {
-          console.log(`✅ ${url} → ${res.status}`);
-        })
-        .catch((err) => {
-          console.warn(`❌ ${url} → ${err.message}`);
-        })
-    );
-
-    await Promise.all(promesas);
-    console.log("✔️ Wake‐up requests enviados desde Login.vue");
-  },
 };
 </script>
 

@@ -1,9 +1,17 @@
 // Router api
 import axios from 'axios';
 
-const host = "apigateway-mg13.onrender.com"
-const baseURL = `https://${host}`
-const wssURL = `wss://${host}` 
+// const host = import.meta.env.VITE_API_URL
+// const protocol = import.meta.env.VITE_API_PROTOCOL
+// const wssProtocol = import.meta.env.VITE_WSS_PROTOCOL
+
+const host = "service-gateway-cedfc8huebcbdwad.mexicocentral-01.azurewebsites.net"
+const protocol = "https"
+const wssProtocol = "wss"
+
+
+const baseURL = `${protocol}://${host}`
+const wssURL = `${wssProtocol}://${host}`
 
 axios.defaults.baseURL = baseURL;
 
