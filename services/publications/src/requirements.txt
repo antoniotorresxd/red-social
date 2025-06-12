@@ -9,3 +9,5 @@ djangorestframework-simplejwt
 django-filter
 requests
 dj-database-url
+django-storages[azure]
+azure-storage-blob

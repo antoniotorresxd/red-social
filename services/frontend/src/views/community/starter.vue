@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
+    <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1 border">
       <!-- Sidebar -->
       <div class="chat-leftsidebar border d-flex flex-column">
         <!-- Header + botón -->

@@ -26,7 +26,7 @@ class EmailAuthTokenSerializer(serializers.Serializer):
             )
             if not user:
                 raise serializers.ValidationError(
-                    "Credenciales inválidas.",
+                    "Contraseña o correo incorrecto",
                     code='authorization'
                 )
         else:

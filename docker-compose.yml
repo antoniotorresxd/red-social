@@ -6,10 +6,6 @@ services:
       - "80:80"
     volumes:
       - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - users_service
-      - community_service
-      - frontend
     networks:
       - backend
 
@@ -89,7 +85,6 @@ services:
       - backend
     depends_on:
       - db_postgres_publications
-      - users_service
 
   db_postgres_publications:
     image: postgres:15
@@ -119,7 +114,6 @@ services:
     networks:
       - backend
     depends_on:
-      - users_service
       - mongo_chat
     environment:
       - MONGO_URI=mongodb://mongo:27017
@@ -149,20 +143,6 @@ services:
       - "5173:5173"
     networks:
       - backend
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: antoniotorres841@gmail.com
-  #     PGADMIN_DEFAULT_PASSWORD: admin
-  #   ports:
-  #     - "5050:80"
-  #   depends_on:
-  #     - db_postgres_users
-  #     - db_postgres_community
-  #     - db_postgres_publications
-  #   networks:
-  #     - backend
 
 volumes:
   pgdata_users:
