@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto border rounded p-4" style="max-width:400px;">
+  <div class="pull-left border rounded p-4" style="max-width:400px;">
     <h5 class="mb-4">Unirse a Foro</h5>
     <div class="mb-3">
       <label for="forum-search" class="form-label text-uppercase" style="font-size:.85rem;">

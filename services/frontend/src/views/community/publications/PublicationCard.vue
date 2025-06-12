@@ -40,7 +40,7 @@
     </div>
 
     <!-- ICONO DE COMENTAR -->
-    <div v-if="selectedType === 'forum'" class="comment-action d-flex align-items-center mt-3" @click="toggleComments"
+    <div v-if="pub.type === 'post'" class="comment-action d-flex align-items-center mt-3" @click="toggleComments"
       style="cursor: pointer;">
       <i class="ri-chat-3-line fs-5 me-1"></i>
       <span>Comentarios</span>

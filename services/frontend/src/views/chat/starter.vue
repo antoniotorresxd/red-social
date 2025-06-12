@@ -80,16 +80,17 @@
               <div class="p-3 user-chat-topbar d-flex align-items-center">
                 <BLink
                   href="javascript:void(0);"
-                  class="user-chat-remove fs-18 p-1"
+                  class="user-chat-remove fs-18 p-1 d-block d-lg-none"
                   @click="showCreateChat = false"
                 >
                   <i class="ri-arrow-left-s-line align-bottom"></i>
                 </BLink>
-                <h5 class="text-center flex-grow-1 mb-0">Agregar chat</h5>
+
+                <h5 class="text-left flex-grow-1 mb-0">Agregar chat</h5>
               </div>
 
               <!-- Card de formulario, sin padding-top extra -->
-              <div class="d-flex justify-content-center align-items-start p-3">
+              <div class="d-flex justify-content-start align-items-start p-3">
                 <div
                   class="card shadow-sm"
                   style="max-width: 400px; width: 100%"
@@ -608,23 +609,39 @@ export default {
 
     handleWebSocketMessage(msg) {
       switch (msg.event) {
-        case "chats_list":
+        case "chats_list": {
           this.chatList = msg.chats || [];
           break;
-        case "chat_created":
-          this.chatList.unshift({
-            _id: msg.room_id,
-            participants: msg.participants,
+        }
+        case "chat_created": {
+          let newChat = this.chatList.find((c) => c._id === msg.room_id);
+
+          if (!newChat) {
+            newChat = {
+              _id: msg.room_id,
+              participants: msg.participants,
+            };
+            this.chatList.unshift(newChat);
+          }
+
+          this.$nextTick(() => {
+            this.selectChat(newChat);
+            this.showCreateChat = false;
           });
-          this.activeChat = this.chatList[0];
-          this.showCreateChat = false;
           break;
-        case "chat_exists":
+        }
+
+        case "chat_exists": {
           this.activeChat =
             this.chatList.find((c) => c._id === msg.room_id) || null;
+          if (this.activeChat) {
+            this.username = this.getChatName(this.activeChat);
+            this.messages = [];
+          }
           this.showCreateChat = false;
           break;
-        case "new_message":
+        }
+        case "new_message": {
           if (this.activeChat && msg.room_id === this.activeChat._id) {
             this.messages.push({
               _id: Date.now().toString(),
@@ -641,7 +658,8 @@ export default {
             this.$nextTick(() => this.scrollToBottom());
           }
           break;
-        case "chat_history":
+        }
+        case "chat_history": {
           if (
             this.activeChat &&
             msg.room_id === this.activeChat._id &&
@@ -664,6 +682,7 @@ export default {
           }
           this.$nextTick(() => this.scrollToBottom());
           break;
+        }
       }
     },
 

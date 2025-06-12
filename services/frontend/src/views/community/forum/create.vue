@@ -1,21 +1,35 @@
 <template>
-  <div class="mx-auto border rounded p-4" style="max-width:400px;">
+  <div class="pull-left border rounded p-4" style="max-width: 400px">
     <h5 class="mb-4">Crear Foro</h5>
     <form @submit.prevent="submit">
       <div class="mb-4">
-        <label for="forum-name" class="form-label text-uppercase" style="font-size:.85rem;">
+        <label
+          for="forum-name"
+          class="form-label text-uppercase"
+          style="font-size: 0.85rem"
+        >
           Nombre del foro
         </label>
-        <input id="forum-name" v-model="name" type="text" class="form-control" placeholder="Ingresa el nombre del foro"
-          :disabled="loading" />
+        <input
+          id="forum-name"
+          v-model="name"
+          type="text"
+          class="form-control"
+          placeholder="Ingresa el nombre del foro"
+          :disabled="loading"
+        />
       </div>
 
       <div v-if="error" class="text-danger mb-3">{{ error }}</div>
 
       <div class="text-center">
-        <button type="submit" class="btn btn-outline-primary" :disabled="!name.trim() || loading"
-          style="min-width:100px;">
-          {{ loading ? 'Creando...' : 'Crear' }}
+        <button
+          type="submit"
+          class="btn btn-outline-primary"
+          :disabled="!name.trim() || loading"
+          style="min-width: 100px"
+        >
+          {{ loading ? "Creando..." : "Crear" }}
         </button>
       </div>
     </form>
@@ -23,52 +37,59 @@
 </template>
 
 <script>
-import axios from 'axios'
-import api from '@/router/api'
+import axios from "axios";
+import api from "@/router/api";
 
 export default {
-  name: 'CreateForumForm',
+  name: "CreateForumForm",
   data() {
     return {
-      name: '',
+      name: "",
       loading: false,
-      error: ''
-    }
+      error: "",
+    };
   },
   methods: {
     async submit() {
-      if (!this.name.trim()) return
-      this.loading = true
-      this.error = ''
+      if (!this.name.trim()) return;
+      this.loading = true;
+      this.error = "";
       try {
-
         await axios.post(api.community.create, {
           name: this.name.trim(),
-          type: 'forum',
+          type: "forum",
           admin_id: localStorage.getItem("user_id"),
-        })
+        });
 
         const noti = {
           id: Date.now(),
-          user_id: localStorage.getItem("user_id"), 
+          user_id: localStorage.getItem("user_id"),
           title: "Foro creado",
           message: `El foro ${this.name.trim()} se ha creado correctamente.`,
           type: "all",
           created_at: new Date().toISOString(),
-          read: false 
+          read: false,
         };
         localStorage.setItem("new_notification", JSON.stringify(noti));
-        window.dispatchEvent(new CustomEvent("show-notification", { detail: noti }));
+        window.dispatchEvent(
+          new CustomEvent("show-notification", { detail: noti })
+        );
 
-        this.$emit('done')
+        this.$emit("done");
       } catch (e) {
-        this.error = e.response?.data?.message || 'Error al crear el foro'
+        let errorMsg = e.response?.data?.message;
+        if (errorMsg) {
+          const match = errorMsg.match(/string='([^']+)'/);
+          this.error = match ? match[1] : "Error al crear el foro";
+        } else {
+          this.error = "Error al crear el foro";
+        }
       } finally {
-        this.loading = false
+        this.loading = false;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

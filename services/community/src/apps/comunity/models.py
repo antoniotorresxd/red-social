@@ -11,7 +11,7 @@ TYPE_CHOICES = [
 
 class Community(models.Model):
     admin_id = models.IntegerField()
-    name = models.CharField(unique=True)
+    name = models.CharField(max_length=255)
     code = models.CharField(max_length=7, null=True, blank=True)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     list_users = ArrayField(models.IntegerField(), default=list, blank=True)
