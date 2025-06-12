@@ -1,6 +1,6 @@
 <template>
     <Layout>
-        <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
+        <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1 border">
             <!-- Sidebar -->
             <div class="chat-leftsidebar border d-flex flex-column">
                 <div class="px-4 pt-4 mb-4">
@@ -23,13 +23,12 @@
                         <i class="ri-profile-line fs-5"></i>
                         <span>Mi Perfil</span>
                     </div>
-
                 </simplebar>
             </div>
 
             <!-- Área de trabajo -->
             <div class="user-chat w-100 overflow-auto p-4">
-                <div class="d-flex align-items-center mb-4 d-lg-none">
+                <div class="d-flex align-items-center mb-4 d-lg-none ">
                     <BLink href="javascript:void(0)" class="user-chat-remove fs-18 p-1 me-3" @click="closeContent">
                         <i class="ri-arrow-left-s-line align-bottom"></i>
                     </BLink>

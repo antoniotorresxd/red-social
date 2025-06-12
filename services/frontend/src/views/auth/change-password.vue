@@ -25,7 +25,7 @@
 
                 <form @submit.prevent="resetPassword">
                   <div class="mb-3">
-                    <label for="email" class="form-label">Dirección de correo electrónico</label>
+                    <label for="email" class="form-label">Correo Institucional</label>
                     <input v-model="email" type="email" required class="form-control" id="email"
                       placeholder="correo@alumno.ipn.mx" />
                   </div>

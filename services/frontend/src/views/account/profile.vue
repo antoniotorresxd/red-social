@@ -1,6 +1,6 @@
 <!-- src/views/user/UserProfile.vue -->
 <template>
-  <div class="col-xl-5 col-12 mx-auto mt-4">
+  <div class="col-xl-5 col-12 mx-auto mt-4 mb-0 border p-5">
     <h5 class="text-center mb-4">{{ showPasswordForm ? 'Cambiar Contraseña' : 'Mi Perfil' }}</h5>
 
     <!-- FORMULARIO DE PERFIL -->

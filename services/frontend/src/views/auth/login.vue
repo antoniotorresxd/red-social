@@ -168,12 +168,12 @@ export default {
           this.$router.push({ name: "default" });
         } else {
           this.authError =
-            data.non_field_errors || data.message || "Credenciales inválidas";
+            data.non_field_errors[0] || data.message || "Credenciales inválidas";
           this.showError = true;
         }
       } catch (err) {
         this.authError =
-          err.response?.data?.non_field_errors ||
+          err.response?.data?.non_field_errors[0] ||
           err.response?.data?.message ||
           "Error de conexión";
         this.showError = true;
