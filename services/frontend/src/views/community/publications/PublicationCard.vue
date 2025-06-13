@@ -12,7 +12,7 @@
 
     <!-- TEXTO PUBLICADO -->
     <div class="publication-text mb-3">
-      <h5 v-if="pub.title">
+      <h5 v-if="pub.user_name">
         <strong>Nueva tarea: {{ pub.title }}</strong>
       </h5>
       {{ pub.description }}

@@ -148,7 +148,7 @@
                             <h5 class="text-truncate mb-0 fs-16">
                               <BLink
                                 class="text-reset username"
-                                @click="showOffcanvas = !showOffcanvas"
+                                
                               >
                                 {{ username }}
                               </BLink>

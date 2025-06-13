@@ -2,7 +2,7 @@
 import requests
 from django.utils import timezone
 
-from django.conf import settings
+import os
 from django.core.cache import cache
 
 from rest_framework import viewsets, status
@@ -52,11 +52,12 @@ class PublicationViewSet(viewsets.ModelViewSet):
 
             try:
                 resp = requests.get(
-                    f"{settings.API_GATEWAY_URL}/microservice-users/",
+                    f"{os.environ['URL_GATEWAY']}/microservice-users/",
                     params={"ids": ids_param},
                     headers=headers,
                     timeout=2
                 )
+                print(resp)
                 resp.raise_for_status()
                 body = resp.json()
                 users_list = body.get("data", body) if isinstance(body, dict) else body
@@ -66,8 +67,8 @@ class PublicationViewSet(viewsets.ModelViewSet):
                     users[uid] = u
                     cache.set(f"user_{uid}", u, timeout=300)
 
-            except Exception:
-                pass 
+            except Exception as e:
+                print(e) 
 
         for item in items:
             user = users.get(item.get(key))
