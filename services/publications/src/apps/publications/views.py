@@ -51,8 +51,9 @@ class PublicationViewSet(viewsets.ModelViewSet):
                 headers["Authorization"] = auth_header
 
             try:
+                url = f"https://{os.environ['URL_GATEWAY']}/microservice-users/"
                 resp = requests.get(
-                    f"{os.environ['URL_GATEWAY']}/microservice-users/",
+                    url,
                     params={"ids": ids_param},
                     headers=headers,
                     timeout=2
