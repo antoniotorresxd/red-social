@@ -170,7 +170,7 @@ class PublicationViewSet(viewsets.ModelViewSet):
                 )
 
             now = timezone.now()
-            is_late = task.due_date and now > task.due_date
+            is_late = now > task.due_date if task.due_date else False
 
             submission = Submission.objects.create(
                 task=task,

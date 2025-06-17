@@ -1,6 +1,6 @@
 <template>
   <div class="pull-left border rounded p-4" style="max-width: 400px">
-    <h5 class="mb-4">Crear Grupo</h5>
+    <h5 class="mb-4 d-flex justify-content-center">Crear Grupo</h5>
     <form @submit.prevent="submit">
       <div class="mb-4">
         <label

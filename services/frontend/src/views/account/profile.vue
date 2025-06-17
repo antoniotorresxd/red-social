@@ -1,7 +1,9 @@
 <!-- src/views/user/UserProfile.vue -->
 <template>
   <div class="col-xl-5 col-12 mx-auto mt-4 mb-0 border p-5">
-    <h5 class="text-center mb-4">{{ showPasswordForm ? 'Cambiar Contraseña' : 'Actualizar Perfil' }}</h5>
+    <h5 class="text-center mb-4">
+  {{ showPasswordForm ? 'Cambiar Contraseña' : (editing ? 'Actualizar Perfil' : 'Mi perfil') }}
+</h5>
 
     <!-- FORMULARIO DE PERFIL -->
     <form v-if="!showPasswordForm" @submit.prevent="updateProfile">

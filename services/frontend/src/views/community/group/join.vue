@@ -1,10 +1,10 @@
 <template>
   <div class="pull-left border rounded p-4" style="max-width:400px;">
-    <h5 class="mb-4">Unirse Grupo</h5>
+    <h5 class="mb-4 d-flex justify-content-center">Unirse Grupo</h5>
     <form @submit.prevent="submit">
       <div class="mb-4">
-        <label for="group-name" class="form-label text-uppercase" style="font-size:.85rem;">
-          Codigo del grupo
+        <label for="group-name" class="form-label" style="font-size:.85rem;">
+          Código
         </label>
         <input
           id="group-name"

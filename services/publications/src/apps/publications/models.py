@@ -21,7 +21,7 @@ class Submission(models.Model):
     user_id = models.IntegerField()
     file = models.FileField(upload_to="tasks/")
     submitted_at = models.DateTimeField()
-    is_late = models.BooleanField()
+    is_late = models.BooleanField(default=False)
     reviewed = models.BooleanField()
     grade = models.IntegerField(null=True, blank=True)
 

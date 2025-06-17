@@ -42,8 +42,8 @@
     <!-- ICONO DE COMENTAR -->
     <div v-if="pub.type === 'post'" class="comment-action d-flex align-items-center mt-3" @click="toggleComments"
       style="cursor: pointer;">
+      <span class="mr-2">Comentarios &nbsp;</span>
       <i class="ri-chat-3-line fs-5 me-1"></i>
-      <span>Comentarios</span>
     </div>
   </li>
 </template>

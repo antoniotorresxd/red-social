@@ -68,7 +68,7 @@
     <teleport to="body">
       <div v-if="modalType === 'post'" class="publish-overlay" :style="modalOverlayStyles" @click.self="closeModal">
         <div class="publish-card">
-          <h5 class="mb-3">Crear publicación</h5>
+          <h5 class="mb-3 d-flex justify-content-center">Crear publicación</h5>
           <textarea v-model="newPost" class="form-control mb-3" rows="6" placeholder="Texto a publicar..."></textarea>
           <div class="text-end">
             <BButton variant="secondary" @click="closeModal">Cancelar</BButton>
@@ -86,7 +86,7 @@
       <div v-if="modalType === 'task'" class="publish-overlay mt-5 pt-5" :style="modalOverlayStyles"
         @click.self="closeModal">
         <div class="publish-card">
-          <h5 class="mb-3">Crear tarea</h5>
+          <h5 class="mb-3 d-flex justify-content-center">Publicación</h5>
           <label for="">Nombre de la tarea</label>
           <input v-model="taskTitle" type="text" class="form-control mb-3" placeholder="" />
           <label for="">Descripción de la tarea</label>
@@ -388,7 +388,7 @@ export default {
     setupKebab() {
       this.kebabItems = []
       if (this.isAdmin) {
-        this.kebabItems.push('Publicar')
+        this.kebabItems.push('Crear publicación')
         if (this.selected.type === 'group') {
           this.kebabItems.push('Crear tarea')
         }
@@ -397,7 +397,7 @@ export default {
           this.selected.type === 'group' ? 'Eliminar grupo' : 'Eliminar foro'
         )
       } else {
-        this.kebabItems.push('Publicar')
+        this.kebabItems.push('Crear publicación')
         this.kebabItems.push('Integrantes')
         this.kebabItems.push(
           this.selected.type === 'group' ? 'Salir del grupo' : 'Salir del foro'
@@ -433,7 +433,7 @@ export default {
     },
     onSelect(item) {
       this.showKebab = false
-      if (item === 'Publicar') {
+      if (item === 'Crear publicación') {
         this.openModal('post')
       } else if (item === 'Crear tarea') {
         this.openModal('task')
