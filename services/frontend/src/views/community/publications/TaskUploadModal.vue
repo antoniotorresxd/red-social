@@ -7,7 +7,7 @@
       @click.self="close"
     >
       <div class="publish-card" style="max-width: 400px">
-        <h5 class="mb-3">Subir tarea</h5>
+        <h5 class="mb-3 justify-content-center d-flex ">Subir tarea</h5>
         <div
           class="file-drop mb-3 d-flex flex-column align-items-center justify-content-center border rounded p-3"
           @dragover.prevent

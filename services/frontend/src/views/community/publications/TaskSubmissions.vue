@@ -56,7 +56,7 @@
     <teleport to="body">
       <div v-if="showModal" class="grade-modal-overlay" @click.self="closeModal">
         <div class="grade-modal-card p-4 rounded shadow">
-          <h5 class="mb-3 d-flex justify-content-center">Calificar tarea</h5>
+          <h5 class="mb-3 d-flex justify-content-center">Visualizar tarea</h5>
           <div class="mb-2">
             <a :href="selectedSubmission.file" target="_blank" rel="noopener">
               <i class="ri-file-pdf-line fs-4"></i>

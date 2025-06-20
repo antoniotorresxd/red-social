@@ -140,7 +140,7 @@
             placeholder="Texto a publicar..."
           ></textarea>
           <div class="text-end">
-            <BButton variant="secondary" @click="closeModal">Cancelar</BButton>
+            <!-- <BButton variant="secondary" @click="closeModal">Cancelar</BButton> -->
             <BButton
               variant="primary"
               class="ms-2"
@@ -462,8 +462,8 @@ export default {
         background: "rgba(0,0,0,0.05)",
         zIndex: 1500,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: "flex-start", // <-- Lo más importante
+        justifyContent: "flex-start", // <-- Lo más importante
       };
     },
 

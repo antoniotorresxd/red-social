@@ -256,7 +256,7 @@
                         </span>
                       </div>
                     </BCol>
-                    <BCol cols="auto">
+                    <BCol cols="auto mx-auto">
                       <div class="chat-input-links ms-2">
                         <div class="links-list-item">
                           <BButton
@@ -264,7 +264,7 @@
                             type="submit"
                             class="chat-send fs-13"
                           >
-                            <i class="ri-send-plane-2-fill align-bottom"></i>
+                           Enviar
                           </BButton>
                         </div>
                       </div>

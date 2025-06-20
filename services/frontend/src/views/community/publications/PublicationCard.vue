@@ -13,7 +13,7 @@
     <!-- TEXTO PUBLICADO -->
     <div class="publication-text mb-3">
       <h5 v-if="pub.user_name">
-        <strong>Nueva tarea: {{ pub.title }}</strong>
+        <strong>{{ pub.title }}</strong>
       </h5>
       {{ pub.description }}
       <div v-if="pub.type === 'task' && selectedType === 'group'" class="mt-2">
@@ -22,7 +22,7 @@
         </BButton>
 
         <BButton class="mt-2" v-else size="sm" variant="outline-success" @click="$emit('grade-task', pub)">
-          Calificar tarea
+          Visualizar tarea
         </BButton>
       </div>
     </div>
