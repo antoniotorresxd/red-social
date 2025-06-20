@@ -22,7 +22,7 @@
         </BButton>
 
         <BButton class="mt-2" v-else size="sm" variant="outline-success" @click="$emit('grade-task', pub)">
-          Visualizar tarea
+          Visualizar tareas
         </BButton>
       </div>
     </div>

@@ -6,7 +6,7 @@
         <div class="px-4 pt-4 mb-4">
           <div class="d-flex align-items-start">
             <div class="flex-grow-1">
-              <h5 class="mb-4">Chats</h5>
+              <h5 class="mb-4 d-flex justify-content-center">Chats</h5>
             </div>
             <div class="flex-shrink-0">
               <div v-b-tooltip.hover title="Agregar chat">

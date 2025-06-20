@@ -132,7 +132,7 @@
         @click.self="closeModal"
       >
         <div class="publish-card">
-          <h5 class="mb-3 d-flex justify-content-center">Crear publicación</h5>
+          <h5 class="mb-3 d-flex justify-content-center">Publicación</h5>
           <textarea
             v-model="newPost"
             class="form-control mb-3"

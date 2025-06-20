@@ -6,8 +6,8 @@
       :style="overlayStyles"
       @click.self="close"
     >
-      <div class="publish-card" style="max-width: 400px">
-        <h5 class="mb-3 justify-content-center d-flex ">Subir tarea</h5>
+      <div class="publish-card">
+        <h5 class="mb-3 justify-content-center d-flex">Subir tarea</h5>
         <div
           class="file-drop mb-3 d-flex flex-column align-items-center justify-content-center border rounded p-3"
           @dragover.prevent
@@ -88,9 +88,7 @@ export default {
         height: "100vh",
         background: "rgba(0,0,0,0.08)",
         zIndex: 1500,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        // ¡OJO! NO uses display:flex aquí
       }),
     },
   },
@@ -178,13 +176,20 @@ export default {
   },
 };
 </script>
+
 <style scoped>
+.publish-overlay {
+  /* Solo color fondo, nada de flexbox */
+}
 .publish-card {
+  position: absolute;
+  top: 32px;
+  left: 32px;
   background: #fff;
   padding: 1.5rem;
   border-radius: 0.5rem;
   width: 90%;
-  max-width: 600px;
+  max-width: 400px;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 .file-drop {
