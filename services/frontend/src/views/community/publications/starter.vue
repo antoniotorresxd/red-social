@@ -167,7 +167,7 @@
         @click.self="closeModal"
       >
         <div class="publish-card">
-          <h5 class="mb-3 d-flex justify-content-center">Publicación</h5>
+          <h5 class="mb-3 d-flex justify-content-center">Tarea</h5>
           <label for="">Nombre de la tarea</label>
           <input
             v-model="taskTitle"
